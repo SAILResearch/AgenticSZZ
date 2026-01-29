@@ -39,7 +39,7 @@ This is the replication package for the paper:
 ├── results/sample/                # Example output format
 │   └── example_output.json
 │
-├── AgenticSZZ_SYSTEM_PROMPT.md    # Agent system prompt
+├── SYSTEM_PROMPT.md               # Agent system prompt
 ├── .env.example                   # Environment variables template
 └── pyproject.toml                 # Python dependencies
 ```

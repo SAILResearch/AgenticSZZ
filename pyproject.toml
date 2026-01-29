@@ -1,0 +1,74 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "agentic-szz"
+version = "0.2.0"
+description = "TKG + Agent approach to SZZ algorithm for identifying bug-inducing commits"
+readme = "README.md"
+requires-python = ">=3.12"
+license = {text = "MIT"}
+
+dependencies = [
+    # Core
+    "gitpython>=3.1.0",
+    "pandas>=2.0.0",
+    "numpy>=1.24.0",
+    "matplotlib>=3.7.0",
+    # TKG (Graphiti + Neo4j)
+    "graphiti-core>=0.24.0",
+    "neo4j>=5.0.0",
+    # Agent (pydantic-ai + Graphiti tools)
+    "openai>=1.0.0",
+    "pydantic>=2.0.0",
+    "pydantic-settings>=2.0.0",
+    "pydantic-ai>=0.1.0",
+    "loguru>=0.7.0",
+    "tiktoken>=0.5.0",
+    "sentencepiece>=0.1.99",
+    "unidiff>=0.7.0",
+    "datasets>=2.0.0",
+    "tqdm>=4.60.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest",
+    "pytest-cov",
+]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["agentic_szz*"]
+exclude = ["dataset*", "vendor*", "results*", "*.subject_repos*"]
+
+[tool.setuptools.package-data]
+agentic_szz = ["**/*.json"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_functions = ["test_*"]
+filterwarnings = [
+    # Suppress deprecation warning from graphiti_core (external library)
+    "ignore:Support for class-based `config` is deprecated:DeprecationWarning",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = [
+    "E",      # pycodestyle errors
+    "F",      # pyflakes
+    "W",      # pycodestyle warnings
+]
+ignore = [
+    "E501",   # Line too long - handled by formatter, not linter
+]
+
+[tool.ruff.lint.per-file-ignores]
+"evaluation/*.py" = ["E501"]  # Allow long lines in print statements
+"tests/*.py" = ["E501"]        # Allow long lines in test assertions

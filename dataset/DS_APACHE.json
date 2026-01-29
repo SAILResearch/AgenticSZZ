@@ -1,0 +1,1814 @@
+[
+    {
+        "repo_name": "accumulo",
+        "bug_fixing_commit": "712504b2d",
+        "bug_inducing_commit": [
+            "995080c44"
+        ]
+    },
+    {
+        "repo_name": "accumulo",
+        "bug_fixing_commit": "c475c85ff",
+        "bug_inducing_commit": [
+            "995080c44"
+        ]
+    },
+    {
+        "repo_name": "accumulo",
+        "bug_fixing_commit": "a323f0362",
+        "bug_inducing_commit": [
+            "995080c44"
+        ]
+    },
+    {
+        "repo_name": "accumulo",
+        "bug_fixing_commit": "f122beb12",
+        "bug_inducing_commit": [
+            "7f20e6aef",
+            "191bee180"
+        ]
+    },
+    {
+        "repo_name": "accumulo",
+        "bug_fixing_commit": "d4d455f1f",
+        "bug_inducing_commit": [
+            "f42ead0d3"
+        ]
+    },
+    {
+        "repo_name": "accumulo",
+        "bug_fixing_commit": "5875781c5",
+        "bug_inducing_commit": [
+            "01d3af40b"
+        ]
+    },
+    {
+        "repo_name": "accumulo",
+        "bug_fixing_commit": "6927fb527",
+        "bug_inducing_commit": [
+            "01d3af40b"
+        ]
+    },
+    {
+        "repo_name": "accumulo",
+        "bug_fixing_commit": "64713554b",
+        "bug_inducing_commit": [
+            "3af75fc68"
+        ]
+    },
+    {
+        "repo_name": "accumulo",
+        "bug_fixing_commit": "1aceaa014",
+        "bug_inducing_commit": [
+            "3e5524c3c",
+            "74507ae3a"
+        ]
+    },
+    {
+        "repo_name": "accumulo",
+        "bug_fixing_commit": "3ef67cbee",
+        "bug_inducing_commit": [
+            "840dba269",
+            "f2de427f7"
+        ]
+    },
+    {
+        "repo_name": "accumulo",
+        "bug_fixing_commit": "87c609d77",
+        "bug_inducing_commit": [
+            "c9c0d45b5",
+            "859222146",
+            "261cf3618",
+            "cc3c2d8a8",
+            "75fcf1c7f",
+            "d7ba6ca6f",
+            "4d83d53b0"
+        ]
+    },
+    {
+        "repo_name": "accumulo",
+        "bug_fixing_commit": "891584fb7",
+        "bug_inducing_commit": [
+            "085c5b793"
+        ]
+    },
+    {
+        "repo_name": "accumulo",
+        "bug_fixing_commit": "0398fa70b",
+        "bug_inducing_commit": [
+            "94c2a31fc",
+            "0277521da"
+        ]
+    },
+    {
+        "repo_name": "accumulo",
+        "bug_fixing_commit": "9a4dd3000",
+        "bug_inducing_commit": [
+            "a943f323b"
+        ]
+    },
+    {
+        "repo_name": "accumulo",
+        "bug_fixing_commit": "d36e317a8",
+        "bug_inducing_commit": [
+            "29c6052d6"
+        ]
+    },
+    {
+        "repo_name": "accumulo",
+        "bug_fixing_commit": "e77bdd7de",
+        "bug_inducing_commit": [
+            "f446b9007"
+        ]
+    },
+    {
+        "repo_name": "accumulo",
+        "bug_fixing_commit": "a24a286d8",
+        "bug_inducing_commit": [
+            "7f8f66d8a"
+        ]
+    },
+    {
+        "repo_name": "accumulo",
+        "bug_fixing_commit": "c12679ad4",
+        "bug_inducing_commit": [
+            "c8bd1ddd0",
+            "45f18c174"
+        ]
+    },
+    {
+        "repo_name": "accumulo",
+        "bug_fixing_commit": "a8d1acd4b",
+        "bug_inducing_commit": [
+            "8d7f04cd9"
+        ]
+    },
+    {
+        "repo_name": "accumulo",
+        "bug_fixing_commit": "4cffe0290",
+        "bug_inducing_commit": [
+            "659a33e8e"
+        ]
+    },
+    {
+        "repo_name": "accumulo",
+        "bug_fixing_commit": "81a77e1d6",
+        "bug_inducing_commit": [
+            "9cee40724",
+            "5eceb10e2"
+        ]
+    },
+    {
+        "repo_name": "accumulo",
+        "bug_fixing_commit": "e4dbe897c",
+        "bug_inducing_commit": [
+            "5cb976b3c",
+            "d2f82cd92"
+        ]
+    },
+    {
+        "repo_name": "accumulo",
+        "bug_fixing_commit": "fa978b0c3",
+        "bug_inducing_commit": [
+            "ca083a5b8"
+        ]
+    },
+    {
+        "repo_name": "accumulo",
+        "bug_fixing_commit": "e43561112",
+        "bug_inducing_commit": [
+            "db2dda1b7"
+        ]
+    },
+    {
+        "repo_name": "accumulo",
+        "bug_fixing_commit": "009022987",
+        "bug_inducing_commit": [
+            "e43561112"
+        ]
+    },
+    {
+        "repo_name": "accumulo",
+        "bug_fixing_commit": "85eb28052",
+        "bug_inducing_commit": [
+            "2c9833171"
+        ]
+    },
+    {
+        "repo_name": "accumulo",
+        "bug_fixing_commit": "fa22fa431",
+        "bug_inducing_commit": [
+            "be646246b"
+        ]
+    },
+    {
+        "repo_name": "accumulo",
+        "bug_fixing_commit": "699b8bf06",
+        "bug_inducing_commit": [
+            "b0e1a81cf"
+        ]
+    },
+    {
+        "repo_name": "accumulo",
+        "bug_fixing_commit": "a541e766e",
+        "bug_inducing_commit": [
+            "dad7c7c93"
+        ]
+    },
+    {
+        "repo_name": "accumulo",
+        "bug_fixing_commit": "a2c2d38aa",
+        "bug_inducing_commit": [
+            "3af75fc68"
+        ]
+    },
+    {
+        "repo_name": "accumulo",
+        "bug_fixing_commit": "e5086f908",
+        "bug_inducing_commit": [
+            "33890b00e",
+            "f2868c621",
+            "fe77101d0",
+            "a8c3587d1"
+        ]
+    },
+    {
+        "repo_name": "accumulo",
+        "bug_fixing_commit": "4911f855d",
+        "bug_inducing_commit": [
+            "ef7c4f083",
+            "72156b82e"
+        ]
+    },
+    {
+        "repo_name": "accumulo",
+        "bug_fixing_commit": "e33c1f495",
+        "bug_inducing_commit": [
+            "0607c8cf0",
+            "22a6209b8"
+        ]
+    },
+    {
+        "repo_name": "accumulo",
+        "bug_fixing_commit": "c5153331c",
+        "bug_inducing_commit": [
+            "2faafcce4",
+            "5bd68ef9b",
+            "7038755be"
+        ]
+    },
+    {
+        "repo_name": "accumulo",
+        "bug_fixing_commit": "a8ef75ee0",
+        "bug_inducing_commit": [
+            "d1aaecba9"
+        ]
+    },
+    {
+        "repo_name": "accumulo",
+        "bug_fixing_commit": "47a091ade",
+        "bug_inducing_commit": [
+            "2f788f482"
+        ]
+    },
+    {
+        "repo_name": "ambari",
+        "bug_fixing_commit": "76ea14ed31",
+        "bug_inducing_commit": [
+            "0cbc5fa385"
+        ]
+    },
+    {
+        "repo_name": "ambari",
+        "bug_fixing_commit": "786d4b6334",
+        "bug_inducing_commit": [
+            "6b7a7a706d"
+        ]
+    },
+    {
+        "repo_name": "ambari",
+        "bug_fixing_commit": "6b9a59753a",
+        "bug_inducing_commit": [
+            "aba473e84a"
+        ]
+    },
+    {
+        "repo_name": "ambari",
+        "bug_fixing_commit": "3f2743b58b",
+        "bug_inducing_commit": [
+            "fe0e2c563f"
+        ]
+    },
+    {
+        "repo_name": "ambari",
+        "bug_fixing_commit": "3b2e103b7e",
+        "bug_inducing_commit": [
+            "ac0c66e986"
+        ]
+    },
+    {
+        "repo_name": "ambari",
+        "bug_fixing_commit": "bf5ca2f5e6",
+        "bug_inducing_commit": [
+            "be25c9e771"
+        ]
+    },
+    {
+        "repo_name": "ambari",
+        "bug_fixing_commit": "e858b20bee",
+        "bug_inducing_commit": [
+            "8a2cb5b35a"
+        ]
+    },
+    {
+        "repo_name": "ambari",
+        "bug_fixing_commit": "43ae930b01",
+        "bug_inducing_commit": [
+            "c9f0dd0b82"
+        ]
+    },
+    {
+        "repo_name": "ambari",
+        "bug_fixing_commit": "44b2a5ccaa",
+        "bug_inducing_commit": [
+            "9842b40d2b",
+            "6dd00195e6",
+            "8c237ec866",
+            "4b4bcbfb67"
+        ]
+    },
+    {
+        "repo_name": "ambari",
+        "bug_fixing_commit": "a00ffffc54",
+        "bug_inducing_commit": [
+            "b5a2bb8ddb"
+        ]
+    },
+    {
+        "repo_name": "ambari",
+        "bug_fixing_commit": "d4ba96481c",
+        "bug_inducing_commit": [
+            "eef7b7308e",
+            "b96c77a8f9"
+        ]
+    },
+    {
+        "repo_name": "ambari",
+        "bug_fixing_commit": "288573dcea",
+        "bug_inducing_commit": [
+            "268f5cb652"
+        ]
+    },
+    {
+        "repo_name": "ambari",
+        "bug_fixing_commit": "c15a281e01",
+        "bug_inducing_commit": [
+            "489a9c4b08"
+        ]
+    },
+    {
+        "repo_name": "ambari",
+        "bug_fixing_commit": "9752f7e772",
+        "bug_inducing_commit": [
+            "7153112e79"
+        ]
+    },
+    {
+        "repo_name": "ambari",
+        "bug_fixing_commit": "9b87326e87",
+        "bug_inducing_commit": [
+            "d43ea4d673"
+        ]
+    },
+    {
+        "repo_name": "ambari",
+        "bug_fixing_commit": "3a9ecc0924",
+        "bug_inducing_commit": [
+            "6d06814f72"
+        ]
+    },
+    {
+        "repo_name": "ambari",
+        "bug_fixing_commit": "1e6e73f30e",
+        "bug_inducing_commit": [
+            "d0f7a51537",
+            "f33a250c0e"
+        ]
+    },
+    {
+        "repo_name": "ambari",
+        "bug_fixing_commit": "e3a50d9464",
+        "bug_inducing_commit": [
+            "d0f7a51537",
+            "f33a250c0e"
+        ]
+    },
+    {
+        "repo_name": "ambari",
+        "bug_fixing_commit": "4fa9ac5505",
+        "bug_inducing_commit": [
+            "6b7a7a706d"
+        ]
+    },
+    {
+        "repo_name": "ambari",
+        "bug_fixing_commit": "af6aba67bb",
+        "bug_inducing_commit": [
+            "90c9904fcd"
+        ]
+    },
+    {
+        "repo_name": "ambari",
+        "bug_fixing_commit": "03463912a9",
+        "bug_inducing_commit": [
+            "4a42b6d5b9"
+        ]
+    },
+    {
+        "repo_name": "ambari",
+        "bug_fixing_commit": "7be21c9148",
+        "bug_inducing_commit": [
+            "b653ee0a59"
+        ]
+    },
+    {
+        "repo_name": "ambari",
+        "bug_fixing_commit": "c9936ad349",
+        "bug_inducing_commit": [
+            "65ca08455f"
+        ]
+    },
+    {
+        "repo_name": "ambari",
+        "bug_fixing_commit": "c7b350b678",
+        "bug_inducing_commit": [
+            "e02969e173"
+        ]
+    },
+    {
+        "repo_name": "ambari",
+        "bug_fixing_commit": "14738859cc",
+        "bug_inducing_commit": [
+            "a8b8b4155b"
+        ]
+    },
+    {
+        "repo_name": "ambari",
+        "bug_fixing_commit": "18e58ffb37",
+        "bug_inducing_commit": [
+            "2e14098c19"
+        ]
+    },
+    {
+        "repo_name": "ambari",
+        "bug_fixing_commit": "3469c1fa3a",
+        "bug_inducing_commit": [
+            "e10f6922eb"
+        ]
+    },
+    {
+        "repo_name": "ambari",
+        "bug_fixing_commit": "9db1834941",
+        "bug_inducing_commit": [
+            "c3d738c6ae"
+        ]
+    },
+    {
+        "repo_name": "ambari",
+        "bug_fixing_commit": "38a6183b5c",
+        "bug_inducing_commit": [
+            "fb9e407cab"
+        ]
+    },
+    {
+        "repo_name": "ambari",
+        "bug_fixing_commit": "bd6eecce68",
+        "bug_inducing_commit": [
+            "8e5eeb4dea"
+        ]
+    },
+    {
+        "repo_name": "ambari",
+        "bug_fixing_commit": "97f3089bad",
+        "bug_inducing_commit": [
+            "20056273ec"
+        ]
+    },
+    {
+        "repo_name": "ambari",
+        "bug_fixing_commit": "7abe374dd5",
+        "bug_inducing_commit": [
+            "20056273ec"
+        ]
+    },
+    {
+        "repo_name": "ambari",
+        "bug_fixing_commit": "73ac59fc33",
+        "bug_inducing_commit": [
+            "20056273ec"
+        ]
+    },
+    {
+        "repo_name": "ambari",
+        "bug_fixing_commit": "1621a53dc5",
+        "bug_inducing_commit": [
+            "20056273ec"
+        ]
+    },
+    {
+        "repo_name": "ambari",
+        "bug_fixing_commit": "365c74b53c",
+        "bug_inducing_commit": [
+            "20056273ec"
+        ]
+    },
+    {
+        "repo_name": "ambari",
+        "bug_fixing_commit": "9f663c7dd2",
+        "bug_inducing_commit": [
+            "7110b855ba"
+        ]
+    },
+    {
+        "repo_name": "ambari",
+        "bug_fixing_commit": "9c39acb06a",
+        "bug_inducing_commit": [
+            "7110b855ba"
+        ]
+    },
+    {
+        "repo_name": "ambari",
+        "bug_fixing_commit": "af82db1188",
+        "bug_inducing_commit": [
+            "7110b855ba"
+        ]
+    },
+    {
+        "repo_name": "hadoop",
+        "bug_fixing_commit": "18f68097768",
+        "bug_inducing_commit": [
+            "fb6b38d67d8"
+        ]
+    },
+    {
+        "repo_name": "hadoop",
+        "bug_fixing_commit": "6f6e170325d",
+        "bug_inducing_commit": [
+            "aeb364d8b57"
+        ]
+    },
+    {
+        "repo_name": "hadoop",
+        "bug_fixing_commit": "2b19054c92f",
+        "bug_inducing_commit": [
+            "e7380b4f9c4"
+        ]
+    },
+    {
+        "repo_name": "hadoop",
+        "bug_fixing_commit": "0f0c6415af4",
+        "bug_inducing_commit": [
+            "28023b77595"
+        ]
+    },
+    {
+        "repo_name": "hadoop",
+        "bug_fixing_commit": "3df3fa396c7",
+        "bug_inducing_commit": [
+            "860d49aa6ae"
+        ]
+    },
+    {
+        "repo_name": "hadoop",
+        "bug_fixing_commit": "47782cbf4a6",
+        "bug_inducing_commit": [
+            "932ae036acb",
+            "7e08c0f23f5"
+        ]
+    },
+    {
+        "repo_name": "hadoop",
+        "bug_fixing_commit": "4008b37b744",
+        "bug_inducing_commit": [
+            "e28edbffe15"
+        ]
+    },
+    {
+        "repo_name": "hadoop",
+        "bug_fixing_commit": "c9ace69cff4",
+        "bug_inducing_commit": [
+            "776eb119acc"
+        ]
+    },
+    {
+        "repo_name": "hadoop",
+        "bug_fixing_commit": "29eadf1b8f7",
+        "bug_inducing_commit": [
+            "5b361069345"
+        ]
+    },
+    {
+        "repo_name": "hadoop",
+        "bug_fixing_commit": "4ab49a43652",
+        "bug_inducing_commit": [
+            "21d10ccc6e4"
+        ]
+    },
+    {
+        "repo_name": "hadoop",
+        "bug_fixing_commit": "bcd402ae380",
+        "bug_inducing_commit": [
+            "48d62fad80a"
+        ]
+    },
+    {
+        "repo_name": "hadoop",
+        "bug_fixing_commit": "6e0a9f92fe0",
+        "bug_inducing_commit": [
+            "fc2ed4a1f9a"
+        ]
+    },
+    {
+        "repo_name": "hadoop",
+        "bug_fixing_commit": "cffee556e4d",
+        "bug_inducing_commit": [
+            "aeb364d8b57"
+        ]
+    },
+    {
+        "repo_name": "hadoop",
+        "bug_fixing_commit": "6d9820ab3d6",
+        "bug_inducing_commit": [
+            "ad95cb1f0d3",
+            "3ebc992e588"
+        ]
+    },
+    {
+        "repo_name": "hadoop",
+        "bug_fixing_commit": "2d16f40dab2",
+        "bug_inducing_commit": [
+            "c6c0f4eb25e"
+        ]
+    },
+    {
+        "repo_name": "hadoop",
+        "bug_fixing_commit": "dc065dd64ca",
+        "bug_inducing_commit": [
+            "3da0bedaec3"
+        ]
+    },
+    {
+        "repo_name": "hadoop",
+        "bug_fixing_commit": "2088309d665",
+        "bug_inducing_commit": [
+            "b73903f6a7d"
+        ]
+    },
+    {
+        "repo_name": "hadoop",
+        "bug_fixing_commit": "4a4dd27571c",
+        "bug_inducing_commit": [
+            "e24071be0ae"
+        ]
+    },
+    {
+        "repo_name": "hadoop",
+        "bug_fixing_commit": "957f0311a16",
+        "bug_inducing_commit": [
+            "df31c446bfa"
+        ]
+    },
+    {
+        "repo_name": "hadoop",
+        "bug_fixing_commit": "93258459faf",
+        "bug_inducing_commit": [
+            "22ff9e68d1d"
+        ]
+    },
+    {
+        "repo_name": "hadoop",
+        "bug_fixing_commit": "32bbc440c1d",
+        "bug_inducing_commit": [
+            "6f6e170325d"
+        ]
+    },
+    {
+        "repo_name": "hadoop",
+        "bug_fixing_commit": "04cc1d614d0",
+        "bug_inducing_commit": [
+            "2a0147f8f69"
+        ]
+    },
+    {
+        "repo_name": "hadoop",
+        "bug_fixing_commit": "f8a245c2731",
+        "bug_inducing_commit": [
+            "cc8a2a29f18"
+        ]
+    },
+    {
+        "repo_name": "hadoop",
+        "bug_fixing_commit": "0ef7ff47d5d",
+        "bug_inducing_commit": [
+            "d96bbe152cf"
+        ]
+    },
+    {
+        "repo_name": "hadoop",
+        "bug_fixing_commit": "42beb56a2ed",
+        "bug_inducing_commit": [
+            "f95ec3f5bf1"
+        ]
+    },
+    {
+        "repo_name": "hadoop",
+        "bug_fixing_commit": "8df7e7deeca",
+        "bug_inducing_commit": [
+            "95f9a515aac"
+        ]
+    },
+    {
+        "repo_name": "hadoop",
+        "bug_fixing_commit": "1758f3146ae",
+        "bug_inducing_commit": [
+            "54217259072"
+        ]
+    },
+    {
+        "repo_name": "hadoop",
+        "bug_fixing_commit": "3f685cd5714",
+        "bug_inducing_commit": [
+            "ca0827a8623"
+        ]
+    },
+    {
+        "repo_name": "hadoop",
+        "bug_fixing_commit": "d1dfa5f9234",
+        "bug_inducing_commit": [
+            "95f9a515aac"
+        ]
+    },
+    {
+        "repo_name": "hadoop",
+        "bug_fixing_commit": "7d1b804d3a3",
+        "bug_inducing_commit": [
+            "9180eca5925"
+        ]
+    },
+    {
+        "repo_name": "hadoop",
+        "bug_fixing_commit": "a2a5cb60b09",
+        "bug_inducing_commit": [
+            "4b3a6b87221"
+        ]
+    },
+    {
+        "repo_name": "hadoop",
+        "bug_fixing_commit": "f5ef2db5003",
+        "bug_inducing_commit": [
+            "7eb7b3b723c"
+        ]
+    },
+    {
+        "repo_name": "hadoop",
+        "bug_fixing_commit": "3d191cc1524",
+        "bug_inducing_commit": [
+            "76be82bc041"
+        ]
+    },
+    {
+        "repo_name": "hadoop",
+        "bug_fixing_commit": "f216f22915f",
+        "bug_inducing_commit": [
+            "8767e4cde17"
+        ]
+    },
+    {
+        "repo_name": "hadoop",
+        "bug_fixing_commit": "b9d49761f72",
+        "bug_inducing_commit": [
+            "10f9f5101c4"
+        ]
+    },
+    {
+        "repo_name": "hadoop",
+        "bug_fixing_commit": "2034315763c",
+        "bug_inducing_commit": [
+            "a46933e8ce4"
+        ]
+    },
+    {
+        "repo_name": "hadoop",
+        "bug_fixing_commit": "b970446b2c5",
+        "bug_inducing_commit": [
+            "0bdd263d82a"
+        ]
+    },
+    {
+        "repo_name": "hadoop",
+        "bug_fixing_commit": "f5312aedb9f",
+        "bug_inducing_commit": [
+            "5f9b4c14a17"
+        ]
+    },
+    {
+        "repo_name": "hadoop",
+        "bug_fixing_commit": "bd76d9a8272",
+        "bug_inducing_commit": [
+            "06d0109314b"
+        ]
+    },
+    {
+        "repo_name": "hadoop",
+        "bug_fixing_commit": "464470e715c",
+        "bug_inducing_commit": [
+            "fdba5fac263",
+            "20176840f62"
+        ]
+    },
+    {
+        "repo_name": "hadoop",
+        "bug_fixing_commit": "dfa78484633",
+        "bug_inducing_commit": [
+            "c59af2fdf8f"
+        ]
+    },
+    {
+        "repo_name": "hadoop",
+        "bug_fixing_commit": "92d8f371553",
+        "bug_inducing_commit": [
+            "a9a8297cad4"
+        ]
+    },
+    {
+        "repo_name": "hadoop",
+        "bug_fixing_commit": "61c0bedf775",
+        "bug_inducing_commit": [
+            "fd2f22adec5"
+        ]
+    },
+    {
+        "repo_name": "hadoop",
+        "bug_fixing_commit": "f5e0bd30fde",
+        "bug_inducing_commit": [
+            "9097e2efe4c"
+        ]
+    },
+    {
+        "repo_name": "hadoop",
+        "bug_fixing_commit": "03060075c53",
+        "bug_inducing_commit": [
+            "644548f2017"
+        ]
+    },
+    {
+        "repo_name": "hadoop",
+        "bug_fixing_commit": "90e07d55ace",
+        "bug_inducing_commit": [
+            "e4b8d9e72d5",
+            "3807884263f"
+        ]
+    },
+    {
+        "repo_name": "hadoop",
+        "bug_fixing_commit": "f1c19b9365c",
+        "bug_inducing_commit": [
+            "1e06299df82"
+        ]
+    },
+    {
+        "repo_name": "hadoop",
+        "bug_fixing_commit": "e3242b95b35",
+        "bug_inducing_commit": [
+            "2a0147f8f69"
+        ]
+    },
+    {
+        "repo_name": "hadoop",
+        "bug_fixing_commit": "c9ace69cff4",
+        "bug_inducing_commit": [
+            "776eb119acc"
+        ]
+    },
+    {
+        "repo_name": "hadoop",
+        "bug_fixing_commit": "4492b9e7302",
+        "bug_inducing_commit": [
+            "67c006c322c"
+        ]
+    },
+    {
+        "repo_name": "hadoop",
+        "bug_fixing_commit": "ef1fc51852c",
+        "bug_inducing_commit": [
+            "6a059dc40e0"
+        ]
+    },
+    {
+        "repo_name": "hadoop",
+        "bug_fixing_commit": "a2a5cb60b09",
+        "bug_inducing_commit": [
+            "4b3a6b87221"
+        ]
+    },
+    {
+        "repo_name": "hadoop",
+        "bug_fixing_commit": "91e832e7b47",
+        "bug_inducing_commit": [
+            "18c5bc86ca2"
+        ]
+    },
+    {
+        "repo_name": "lucene",
+        "bug_fixing_commit": "e213a4e828",
+        "bug_inducing_commit": [
+            "a26f3734c6"
+        ]
+    },
+    {
+        "repo_name": "lucene",
+        "bug_fixing_commit": "ec0c376c45",
+        "bug_inducing_commit": [
+            "f818ff09d8",
+            "e9a5866777"
+        ]
+    },
+    {
+        "repo_name": "lucene",
+        "bug_fixing_commit": "390fbf21d2",
+        "bug_inducing_commit": [
+            "7a65a1823a"
+        ]
+    },
+    {
+        "repo_name": "lucene",
+        "bug_fixing_commit": "1904003fac",
+        "bug_inducing_commit": [
+            "e92a91ed18",
+            "0d31aa07b3",
+            "317d311e7a"
+        ]
+    },
+    {
+        "repo_name": "lucene",
+        "bug_fixing_commit": "7a86d09aea",
+        "bug_inducing_commit": [
+            "48cca13075"
+        ]
+    },
+    {
+        "repo_name": "lucene",
+        "bug_fixing_commit": "1e79c3b98e",
+        "bug_inducing_commit": [
+            "3597bc4bf4",
+            "4ff0b2f82c",
+            "4c5606ee29"
+        ]
+    },
+    {
+        "repo_name": "lucene",
+        "bug_fixing_commit": "5ba9ca4be2",
+        "bug_inducing_commit": [
+            "612d9227de"
+        ]
+    },
+    {
+        "repo_name": "lucene",
+        "bug_fixing_commit": "826a172340",
+        "bug_inducing_commit": [
+            "5a2d0bc654"
+        ]
+    },
+    {
+        "repo_name": "lucene",
+        "bug_fixing_commit": "8f54a18e1a",
+        "bug_inducing_commit": [
+            "b549619dc8"
+        ]
+    },
+    {
+        "repo_name": "lucene",
+        "bug_fixing_commit": "376b331651",
+        "bug_inducing_commit": [
+            "a8032b0637"
+        ]
+    },
+    {
+        "repo_name": "lucene",
+        "bug_fixing_commit": "1d603a9f87",
+        "bug_inducing_commit": [
+            "c1ec7aa8df",
+            "64dfbfdfb2",
+            "b895ebde43"
+        ]
+    },
+    {
+        "repo_name": "lucene",
+        "bug_fixing_commit": "cf06226cb8",
+        "bug_inducing_commit": [
+            "017a3bf628",
+            "2b359d8354"
+        ]
+    },
+    {
+        "repo_name": "lucene",
+        "bug_fixing_commit": "30de6c512a",
+        "bug_inducing_commit": [
+            "85642f59dd"
+        ]
+    },
+    {
+        "repo_name": "lucene",
+        "bug_fixing_commit": "ff886ebb70",
+        "bug_inducing_commit": [
+            "11ae32183f",
+            "c96f750558",
+            "0bfaf5cdfc"
+        ]
+    },
+    {
+        "repo_name": "lucene",
+        "bug_fixing_commit": "c1a70f31a6",
+        "bug_inducing_commit": [
+            "47e96510cc",
+            "3eb66fb19c"
+        ]
+    },
+    {
+        "repo_name": "lucene",
+        "bug_fixing_commit": "3ca4fea578",
+        "bug_inducing_commit": [
+            "cd8fc589b9"
+        ]
+    },
+    {
+        "repo_name": "lucene",
+        "bug_fixing_commit": "2585c9f3ff",
+        "bug_inducing_commit": [
+            "e92a38af90"
+        ]
+    },
+    {
+        "repo_name": "lucene",
+        "bug_fixing_commit": "b9c9cddff7",
+        "bug_inducing_commit": [
+            "a81ebce804"
+        ]
+    },
+    {
+        "repo_name": "lucene",
+        "bug_fixing_commit": "4e79f49f23",
+        "bug_inducing_commit": [
+            "9ba7a8e612"
+        ]
+    },
+    {
+        "repo_name": "lucene",
+        "bug_fixing_commit": "a5402f6863",
+        "bug_inducing_commit": [
+            "e2c41af501",
+            "64b86331c2"
+        ]
+    },
+    {
+        "repo_name": "lucene",
+        "bug_fixing_commit": "b0db06bad5",
+        "bug_inducing_commit": [
+            "71ca2a84ba",
+            "f57e0177ff"
+        ]
+    },
+    {
+        "repo_name": "lucene",
+        "bug_fixing_commit": "43c2b2320d",
+        "bug_inducing_commit": [
+            "7e86ba8c73",
+            "ed2621de84"
+        ]
+    },
+    {
+        "repo_name": "lucene",
+        "bug_fixing_commit": "571264bcc0",
+        "bug_inducing_commit": [
+            "187838022"
+        ]
+    },
+    {
+        "repo_name": "lucene",
+        "bug_fixing_commit": "fbdd2c0ee8",
+        "bug_inducing_commit": [
+            "e30cc70fdd",
+            "3ba4e73a90"
+        ]
+    },
+    {
+        "repo_name": "lucene",
+        "bug_fixing_commit": "74b609cf88",
+        "bug_inducing_commit": [
+            "5650939a8d",
+            "dce5964d8a",
+            "d87ffa4bf8"
+        ]
+    },
+    {
+        "repo_name": "lucene",
+        "bug_fixing_commit": "c7c9ef6a63",
+        "bug_inducing_commit": [
+            "4ac6ce3190"
+        ]
+    },
+    {
+        "repo_name": "lucene",
+        "bug_fixing_commit": "8cd2942e35",
+        "bug_inducing_commit": [
+            "acb185b2dc"
+        ]
+    },
+    {
+        "repo_name": "lucene",
+        "bug_fixing_commit": "ed1f977916",
+        "bug_inducing_commit": [
+            "8bff9e1ff5",
+            "05a802b3eb",
+            "326ab7d577"
+        ]
+    },
+    {
+        "repo_name": "lucene",
+        "bug_fixing_commit": "8b32176c0b",
+        "bug_inducing_commit": [
+            "a5430edf83",
+            "249c678054",
+            "b62cff9fc0",
+            "cc5882ab75",
+            "2e8a9b98de",
+            "68ce463907"
+        ]
+    },
+    {
+        "repo_name": "lucene",
+        "bug_fixing_commit": "886e17c842",
+        "bug_inducing_commit": [
+            "5e45cf89eb",
+            "0a3f804518",
+            "28dab8437f"
+        ]
+    },
+    {
+        "repo_name": "lucene",
+        "bug_fixing_commit": "2b7362de2b",
+        "bug_inducing_commit": [
+            "bfedaea2dd",
+            "0a30dcd945",
+            "26dd4f34cd",
+            "0589889950",
+            "708cea853c",
+            "6efeb6196f"
+        ]
+    },
+    {
+        "repo_name": "lucene",
+        "bug_fixing_commit": "e5addc06d3",
+        "bug_inducing_commit": [
+            "eee47902b7",
+            "9557559df0",
+            "a518f57756",
+            "52124d8ebf",
+            "e79fcaec7c",
+            "abfa458e2a",
+            "f70b9571a9",
+            "36b17aab62",
+            "8b241d9230",
+            "f19e8c58fb",
+            "2635ac0cf7",
+            "071104c07d",
+            "4140f73774",
+            "1aa40cd395"
+        ]
+    },
+    {
+        "repo_name": "lucene",
+        "bug_fixing_commit": "40b3f06f9d",
+        "bug_inducing_commit": [
+            "5e45cf89eb",
+            "0a3f804518",
+            "28dab8437f"
+        ]
+    },
+    {
+        "repo_name": "lucene",
+        "bug_fixing_commit": "f7707d7d91",
+        "bug_inducing_commit": [
+            "135d89c4bd"
+        ]
+    },
+    {
+        "repo_name": "lucene",
+        "bug_fixing_commit": "f50e4dbf51",
+        "bug_inducing_commit": [
+            "0810107d1f"
+        ]
+    },
+    {
+        "repo_name": "lucene",
+        "bug_fixing_commit": "612d9227de",
+        "bug_inducing_commit": [
+            "0810107d1f"
+        ]
+    },
+    {
+        "repo_name": "lucene",
+        "bug_fixing_commit": "e312ee6bfa",
+        "bug_inducing_commit": [
+            "ab8f8f994f",
+            "b20968241a",
+            "5fca7fc938",
+            "6aea26168a",
+            "f389654f9c",
+            "e7294aab77"
+        ]
+    },
+    {
+        "repo_name": "lucene",
+        "bug_fixing_commit": "00b29b4298",
+        "bug_inducing_commit": [
+            "2d4e789d00"
+        ]
+    },
+    {
+        "repo_name": "lucene",
+        "bug_fixing_commit": "232aaa42ed",
+        "bug_inducing_commit": [
+            "f5b5d3e17f"
+        ]
+    },
+    {
+        "repo_name": "lucene",
+        "bug_fixing_commit": "2c34cb858e",
+        "bug_inducing_commit": [
+            "e6231ad585",
+            "e61398084d"
+        ]
+    },
+    {
+        "repo_name": "lucene",
+        "bug_fixing_commit": "145772accb",
+        "bug_inducing_commit": [
+            "0756041335",
+            "5f618b8000",
+            "52d2d3fd6f",
+            "f33c2917e3"
+        ]
+    },
+    {
+        "repo_name": "lucene",
+        "bug_fixing_commit": "c672b56305",
+        "bug_inducing_commit": [
+            "aa22ceb97d"
+        ]
+    },
+    {
+        "repo_name": "lucene",
+        "bug_fixing_commit": "d6b40cc39a",
+        "bug_inducing_commit": [
+            "aa22ceb97d"
+        ]
+    },
+    {
+        "repo_name": "lucene",
+        "bug_fixing_commit": "86d4a61797",
+        "bug_inducing_commit": [
+            "0dec2d1017",
+            "fa52907742",
+            "3b2e04d6a9",
+            "a181dc0735"
+        ]
+    },
+    {
+        "repo_name": "lucene",
+        "bug_fixing_commit": "a7f879db76",
+        "bug_inducing_commit": [
+            "be0bb552ee",
+            "0ce6e9a694",
+            "5e87b67337",
+            "cd49552b57"
+        ]
+    },
+    {
+        "repo_name": "lucene",
+        "bug_fixing_commit": "6b33a8c593",
+        "bug_inducing_commit": [
+            "3865e131cb"
+        ]
+    },
+    {
+        "repo_name": "lucene",
+        "bug_fixing_commit": "e4ed871c5e",
+        "bug_inducing_commit": [
+            "f61d232630"
+        ]
+    },
+    {
+        "repo_name": "lucene",
+        "bug_fixing_commit": "225459815c",
+        "bug_inducing_commit": [
+            "a9670cc6e7"
+        ]
+    },
+    {
+        "repo_name": "lucene",
+        "bug_fixing_commit": "7e4603a988",
+        "bug_inducing_commit": [
+            "50baab7c4b"
+        ]
+    },
+    {
+        "repo_name": "lucene",
+        "bug_fixing_commit": "34a47e66ca",
+        "bug_inducing_commit": [
+            "27d68500ee"
+        ]
+    },
+    {
+        "repo_name": "lucene",
+        "bug_fixing_commit": "e584e3a060",
+        "bug_inducing_commit": [
+            "f60122e08d"
+        ]
+    },
+    {
+        "repo_name": "lucene",
+        "bug_fixing_commit": "3cf40619ca",
+        "bug_inducing_commit": [
+            "9d4bd1f350"
+        ]
+    },
+    {
+        "repo_name": "lucene",
+        "bug_fixing_commit": "936aa1dcfc",
+        "bug_inducing_commit": [
+            "9d4bd1f350"
+        ]
+    },
+    {
+        "repo_name": "lucene",
+        "bug_fixing_commit": "bf00c1a0a7",
+        "bug_inducing_commit": [
+            "b221a53496",
+            "45196378d3",
+            "8571b92efd",
+            "29b23f9166"
+        ]
+    },
+    {
+        "repo_name": "lucene",
+        "bug_fixing_commit": "60f161fd9b",
+        "bug_inducing_commit": [
+            "b221a53496",
+            "45196378d3",
+            "8571b92efd",
+            "29b23f9166"
+        ]
+    },
+    {
+        "repo_name": "lucene",
+        "bug_fixing_commit": "c97a92dcc3",
+        "bug_inducing_commit": [
+            "c8261a41d3"
+        ]
+    },
+    {
+        "repo_name": "lucene",
+        "bug_fixing_commit": "4c83c2200c",
+        "bug_inducing_commit": [
+            "029b34be9e",
+            "9b255d6cc4",
+            "7cde848e37",
+            "ff83497b27"
+        ]
+    },
+    {
+        "repo_name": "lucene",
+        "bug_fixing_commit": "4e73212034",
+        "bug_inducing_commit": [
+            "9ba13dea31"
+        ]
+    },
+    {
+        "repo_name": "lucene",
+        "bug_fixing_commit": "602a1f50e7",
+        "bug_inducing_commit": [
+            "fdeb323243"
+        ]
+    },
+    {
+        "repo_name": "lucene",
+        "bug_fixing_commit": "b5823b50db",
+        "bug_inducing_commit": [
+            "7053a99f49"
+        ]
+    },
+    {
+        "repo_name": "lucene",
+        "bug_fixing_commit": "18256fc287",
+        "bug_inducing_commit": [
+            "0442747f05"
+        ]
+    },
+    {
+        "repo_name": "lucene",
+        "bug_fixing_commit": "89c65af2a6",
+        "bug_inducing_commit": [
+            "093a8ce57c"
+        ]
+    },
+    {
+        "repo_name": "lucene",
+        "bug_fixing_commit": "51b131950d",
+        "bug_inducing_commit": [
+            "57b47fed01"
+        ]
+    },
+    {
+        "repo_name": "lucene",
+        "bug_fixing_commit": "9ab76a1e41",
+        "bug_inducing_commit": [
+            "ce172acb8f",
+            "d0156b1126"
+        ]
+    },
+    {
+        "repo_name": "lucene",
+        "bug_fixing_commit": "3b57a5a624",
+        "bug_inducing_commit": [
+            "229229a3c0"
+        ]
+    },
+    {
+        "repo_name": "lucene",
+        "bug_fixing_commit": "51fde1cbf9",
+        "bug_inducing_commit": [
+            "ce172acb8f",
+            "d0156b1126",
+            "9ab76a1e41"
+        ]
+    },
+    {
+        "repo_name": "lucene",
+        "bug_fixing_commit": "f342cd14df",
+        "bug_inducing_commit": [
+            "e3ba95b8b8"
+        ]
+    },
+    {
+        "repo_name": "lucene",
+        "bug_fixing_commit": "60ce8d7c54",
+        "bug_inducing_commit": [
+            "79d1b8c227",
+            "844ca4a348"
+        ]
+    },
+    {
+        "repo_name": "lucene",
+        "bug_fixing_commit": "e152575f5e",
+        "bug_inducing_commit": [
+            "36183cad87",
+            "07be2c42ba"
+        ]
+    },
+    {
+        "repo_name": "lucene",
+        "bug_fixing_commit": "75e69c5198",
+        "bug_inducing_commit": [
+            "001a3ca55b"
+        ]
+    },
+    {
+        "repo_name": "lucene",
+        "bug_fixing_commit": "e2521b2a8b",
+        "bug_inducing_commit": [
+            "067fb25e43"
+        ]
+    },
+    {
+        "repo_name": "oozie",
+        "bug_fixing_commit": "89f68fbb",
+        "bug_inducing_commit": [
+            "c95c809a"
+        ]
+    },
+    {
+        "repo_name": "oozie",
+        "bug_fixing_commit": "97e3f904",
+        "bug_inducing_commit": [
+            "a77190db"
+        ]
+    },
+    {
+        "repo_name": "oozie",
+        "bug_fixing_commit": "3d1fe287",
+        "bug_inducing_commit": [
+            "81039015"
+        ]
+    },
+    {
+        "repo_name": "oozie",
+        "bug_fixing_commit": "0a6f83e6",
+        "bug_inducing_commit": [
+            "81ce22b6",
+            "87040a1f"
+        ]
+    },
+    {
+        "repo_name": "oozie",
+        "bug_fixing_commit": "e0b7cde7",
+        "bug_inducing_commit": [
+            "c7fa12bb"
+        ]
+    },
+    {
+        "repo_name": "oozie",
+        "bug_fixing_commit": "d2a98a11",
+        "bug_inducing_commit": [
+            "ca01c283"
+        ]
+    },
+    {
+        "repo_name": "oozie",
+        "bug_fixing_commit": "c7fa12bb",
+        "bug_inducing_commit": [
+            "3276633f"
+        ]
+    },
+    {
+        "repo_name": "oozie",
+        "bug_fixing_commit": "7cebc260",
+        "bug_inducing_commit": [
+            "ef513d28"
+        ]
+    },
+    {
+        "repo_name": "oozie",
+        "bug_fixing_commit": "19014354",
+        "bug_inducing_commit": [
+            "fc9aeb13"
+        ]
+    },
+    {
+        "repo_name": "oozie",
+        "bug_fixing_commit": "57152acd",
+        "bug_inducing_commit": [
+            "78c86996"
+        ]
+    },
+    {
+        "repo_name": "oozie",
+        "bug_fixing_commit": "eba0f036",
+        "bug_inducing_commit": [
+            "c5f5f9d6"
+        ]
+    },
+    {
+        "repo_name": "oozie",
+        "bug_fixing_commit": "1b46fd92",
+        "bug_inducing_commit": [
+            "0c90b8c3"
+        ]
+    },
+    {
+        "repo_name": "oozie",
+        "bug_fixing_commit": "f83f484a",
+        "bug_inducing_commit": [
+            "6aa84761"
+        ]
+    },
+    {
+        "repo_name": "oozie",
+        "bug_fixing_commit": "72ee2589",
+        "bug_inducing_commit": [
+            "e86b96d4",
+            "3e20533b",
+            "44af3a3c"
+        ]
+    },
+    {
+        "repo_name": "oozie",
+        "bug_fixing_commit": "78c86996",
+        "bug_inducing_commit": [
+            "0f086d41"
+        ]
+    },
+    {
+        "repo_name": "oozie",
+        "bug_fixing_commit": "d330d406",
+        "bug_inducing_commit": [
+            "70a5ffe4",
+            "70a5ffe4"
+        ]
+    },
+    {
+        "repo_name": "oozie",
+        "bug_fixing_commit": "aebf775a",
+        "bug_inducing_commit": [
+            "0f086d41"
+        ]
+    },
+    {
+        "repo_name": "oozie",
+        "bug_fixing_commit": "23831e85",
+        "bug_inducing_commit": [
+            "396fcc6c"
+        ]
+    },
+    {
+        "repo_name": "oozie",
+        "bug_fixing_commit": "b5524c90",
+        "bug_inducing_commit": [
+            "10549ef2",
+            "b074b2ce"
+        ]
+    },
+    {
+        "repo_name": "oozie",
+        "bug_fixing_commit": "6aefbc71",
+        "bug_inducing_commit": [
+            "0f4b0181"
+        ]
+    },
+    {
+        "repo_name": "oozie",
+        "bug_fixing_commit": "746be5c2",
+        "bug_inducing_commit": [
+            "b54417b7"
+        ]
+    },
+    {
+        "repo_name": "oozie",
+        "bug_fixing_commit": "d929be9f",
+        "bug_inducing_commit": [
+            "4bd777e5"
+        ]
+    },
+    {
+        "repo_name": "oozie",
+        "bug_fixing_commit": "07fa74f4",
+        "bug_inducing_commit": [
+            "2fc2fc9e"
+        ]
+    },
+    {
+        "repo_name": "oozie",
+        "bug_fixing_commit": "b54417b7",
+        "bug_inducing_commit": [
+            "90c06857"
+        ]
+    },
+    {
+        "repo_name": "oozie",
+        "bug_fixing_commit": "0e0aa499",
+        "bug_inducing_commit": [
+            "56fd858d"
+        ]
+    },
+    {
+        "repo_name": "oozie",
+        "bug_fixing_commit": "c270a20c",
+        "bug_inducing_commit": [
+            "cbb1eac9",
+            "6d4a9d0e"
+        ]
+    },
+    {
+        "repo_name": "oozie",
+        "bug_fixing_commit": "75da42b7",
+        "bug_inducing_commit": [
+            "12ef6147"
+        ]
+    },
+    {
+        "repo_name": "oozie",
+        "bug_fixing_commit": "cd91b960",
+        "bug_inducing_commit": [
+            "605ed64f"
+        ]
+    },
+    {
+        "repo_name": "oozie",
+        "bug_fixing_commit": "3ddd8249",
+        "bug_inducing_commit": [
+            "e2090113"
+        ]
+    },
+    {
+        "repo_name": "oozie",
+        "bug_fixing_commit": "92f4079e",
+        "bug_inducing_commit": [
+            "8ca266fa"
+        ]
+    },
+    {
+        "repo_name": "oozie",
+        "bug_fixing_commit": "0439fbb0",
+        "bug_inducing_commit": [
+            "872db60c"
+        ]
+    },
+    {
+        "repo_name": "oozie",
+        "bug_fixing_commit": "db11ab35",
+        "bug_inducing_commit": [
+            "cc4b4398"
+        ]
+    },
+    {
+        "repo_name": "oozie",
+        "bug_fixing_commit": "55c15b2f",
+        "bug_inducing_commit": [
+            "8ca266fa"
+        ]
+    },
+    {
+        "repo_name": "oozie",
+        "bug_fixing_commit": "222b0145",
+        "bug_inducing_commit": [
+            "8ca266fa"
+        ]
+    },
+    {
+        "repo_name": "oozie",
+        "bug_fixing_commit": "b66a2dc7",
+        "bug_inducing_commit": [
+            "57d1762e"
+        ]
+    },
+    {
+        "repo_name": "oozie",
+        "bug_fixing_commit": "4fe13711",
+        "bug_inducing_commit": [
+            "109f41c6"
+        ]
+    },
+    {
+        "repo_name": "oozie",
+        "bug_fixing_commit": "5940a376",
+        "bug_inducing_commit": [
+            "9df0de78"
+        ]
+    },
+    {
+        "repo_name": "oozie",
+        "bug_fixing_commit": "783d56e5",
+        "bug_inducing_commit": [
+            "f97be5d5"
+        ]
+    },
+    {
+        "repo_name": "oozie",
+        "bug_fixing_commit": "f97be5d5",
+        "bug_inducing_commit": [
+            "4249aaee"
+        ]
+    },
+    {
+        "repo_name": "oozie",
+        "bug_fixing_commit": "89d108d7",
+        "bug_inducing_commit": [
+            "24fedae6"
+        ]
+    },
+    {
+        "repo_name": "oozie",
+        "bug_fixing_commit": "a98c7f89",
+        "bug_inducing_commit": [
+            "dc56aaee"
+        ]
+    },
+    {
+        "repo_name": "oozie",
+        "bug_fixing_commit": "438ffd8a",
+        "bug_inducing_commit": [
+            "fd14a1db"
+        ]
+    },
+    {
+        "repo_name": "oozie",
+        "bug_fixing_commit": "6dc33ba1",
+        "bug_inducing_commit": [
+            "283cf1c2"
+        ]
+    },
+    {
+        "repo_name": "oozie",
+        "bug_fixing_commit": "7cf82d31",
+        "bug_inducing_commit": [
+            "283cf1c2"
+        ]
+    },
+    {
+        "repo_name": "oozie",
+        "bug_fixing_commit": "43480c12",
+        "bug_inducing_commit": [
+            "4637ca41"
+        ]
+    }
+]

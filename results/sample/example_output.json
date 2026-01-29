@@ -1,0 +1,38 @@
+{
+    "_description": "Sample output format from AgenticSZZ evaluation",
+    "case": {
+        "bfc_sha": "abc123def456789012345678901234567890abcd",
+        "ground_truth_bic": [
+            "def456abc789012345678901234567890abcdef12"
+        ],
+        "project": "example-project",
+        "repo_path": "dataset/subject_repos/example-project"
+    },
+    "prediction": {
+        "predicted_bic": "def456abc789012345678901234567890abcdef12",
+        "confidence": 0.95,
+        "reasoning": "Single blame commit identified. The commit directly introduced the faulty logic that was removed in the BFC.",
+        "correct": true
+    },
+    "metrics": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1_score": 1.0
+    },
+    "timing": {
+        "total_seconds": 35.2,
+        "tkg_construction_seconds": 12.1,
+        "agent_reasoning_seconds": 23.1
+    },
+    "tokens": {
+        "input_tokens": 28168,
+        "output_tokens": 461,
+        "cost_usd": 0.003
+    },
+    "tkg_stats": {
+        "num_candidates": 5,
+        "num_blame_commits": 2,
+        "num_ancestor_commits": 3,
+        "bic_category": "blame"
+    }
+}

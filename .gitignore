@@ -1,0 +1,14 @@
+**/.idea/
+__pycache__/
+.pytest_cache/
+.ruff_cache/
+.claude
+test
+*.egg-info/
+
+dataset/subject_repos/
+
+# API keys (never commit)
+.env
+.env.local
+*.env

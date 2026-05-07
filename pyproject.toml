@@ -30,6 +30,8 @@ dependencies = [
     "unidiff>=0.7.0",
     "datasets>=2.0.0",
     "tqdm>=4.60.0",
+    "matplotlib-venn>=0.11.0",
+    "scipy>=1.10.0",
 ]
 
 [project.optional-dependencies]

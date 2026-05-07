@@ -10,6 +10,10 @@ Commit Types (from RQ0 insights):
 - blame_ancestor: Commits older than blame (10% of BICs)
 - bfc_ancestor: Commits between blame and BFC (18% of BICs, "descendant" cases)
 
+File-History Depth Limits (80% coverage from RQ0):
+- blame_ancestor: 24 commits (blame → older direction)
+- bfc_ancestor: 14 commits (BFC → blame direction)
+
 Usage:
     from agentic_szz.kg import SuspiciousCommitTKG
 

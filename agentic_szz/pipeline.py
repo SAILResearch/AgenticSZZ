@@ -77,6 +77,7 @@ class AgenticSZZ:
         config: "AgenticSZZConfig" = None,
         db_config: dict = None,
         use_context_fallback: bool = True,
+        context_expand_lines: int = 0,
     ):
         """
         Initialize AgenticSZZ pipeline.
@@ -89,6 +90,8 @@ class AgenticSZZ:
                       Used in evaluation to give each worker its own Neo4j instance.
             use_context_fallback: If True, use context fallback for blameless cases.
                          Set to False for pure SZZ blame_only ablation.
+            context_expand_lines: Expand ±N lines around each deleted line (experimental).
+                         Set to 2 for LLM4SZZ-style context expansion for ancestor detection.
         """
         from agentic_szz.config.settings import Neo4jConfig, get_config
 
@@ -104,7 +107,12 @@ class AgenticSZZ:
         # Initialize components
         # use_context_fallback: for blameless cases (0 deleted lines),
         # blame nearby context lines to get BIC candidates
-        self.blame_analyzer = BlameAnalyzer(repo_path, use_context_fallback=use_context_fallback)
+        # context_expand_lines: expand ±N lines around ALL deleted lines (for ancestor detection)
+        self.blame_analyzer = BlameAnalyzer(
+            repo_path, 
+            use_context_fallback=use_context_fallback,
+            context_expand_lines=context_expand_lines,
+        )
         self.agent = BICSearchAgent(repo_path)
 
     def _save_trajectory(

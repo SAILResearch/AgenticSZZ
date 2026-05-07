@@ -64,12 +64,23 @@ class BlameAnalyzer:
     - Dominant commit (>70% of lines) -> medium-high confidence (0.8)
     - Multiple commits, no clear winner -> low confidence (0.5)
     - Blameless case (no deleted lines) -> zero confidence (0.0)
+    
+    Context expansion (experimental):
+    - context_expand_lines: Expand ±N lines around each deleted line for ALL cases
+    - This can help find ancestor commits when the actual bug is in nearby code
+    - Inspired by LLM4SZZ's context expansion strategy
     """
 
-    def __init__(self, repo_path: str, use_context_fallback: bool = False):
+    def __init__(
+        self,
+        repo_path: str,
+        use_context_fallback: bool = False,
+        context_expand_lines: int = 0,
+    ):
         self.repo_path = repo_path
         self.repo = git.Repo(repo_path)
         self.use_context_fallback = use_context_fallback  # For blameless cases
+        self.context_expand_lines = context_expand_lines  # Expand ±N around ALL deleted lines
 
     def analyze(self, bfc: str) -> BlameResult:
         """
@@ -143,6 +154,16 @@ class BlameAnalyzer:
                 )
                 if context_lines:
                     deleted_lines = context_lines  # Blame these instead
+
+            # Context expansion for ALL deleted lines (experimental, for ancestor detection)
+            # This expands ±N lines around each deleted line to catch nearby buggy code
+            # that may have been introduced by an ancestor commit
+            if self.context_expand_lines > 0 and deleted_lines:
+                expanded_lines = self._expand_context_around_lines(
+                    deleted_lines, a_path, parent.hexsha, self.context_expand_lines
+                )
+                if expanded_lines:
+                    deleted_lines = expanded_lines
 
             if not deleted_lines:
                 continue
@@ -420,6 +441,48 @@ class BlameAnalyzer:
             return context_lines
         except Exception:
             return []  # File might not exist in parent
+
+    def _expand_context_around_lines(
+        self,
+        line_numbers: List[int],
+        file_path: str,
+        rev: str,
+        expand_n: int,
+    ) -> List[int]:
+        """
+        Expand context around each line by ±N lines.
+        
+        This helps capture ancestor commits by blaming surrounding context
+        that may point to earlier commits than direct blame.
+        
+        Args:
+            line_numbers: Original line numbers to expand around
+            file_path: Path to file in repo
+            rev: Git revision to check file length
+            expand_n: Number of lines to expand in each direction
+            
+        Returns:
+            Expanded and deduplicated list of line numbers
+        """
+        if not line_numbers or expand_n <= 0:
+            return line_numbers
+            
+        try:
+            # Get file content at revision to know line count
+            blob = self.repo.commit(rev).tree / file_path
+            parent_line_count = blob.data_stream.read().decode("utf-8", errors="replace").count("\n") + 1
+            
+            # Expand around each line
+            expanded_set = set()
+            for ln in line_numbers:
+                for offset in range(-expand_n, expand_n + 1):
+                    new_ln = ln + offset
+                    if 1 <= new_ln <= parent_line_count:
+                        expanded_set.add(new_ln)
+            
+            return sorted(expanded_set)
+        except Exception:
+            return line_numbers  # Fallback to original if file not found
 
     def _blame_lines(
         self, file_path: str, line_numbers: List[int], rev: str

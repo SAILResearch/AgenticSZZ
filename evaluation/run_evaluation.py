@@ -180,9 +180,9 @@ def start_worker_database(worker_id: int) -> Dict[str, any]:
     )
     
     if config['container_name'] in result.stdout.strip():
-        # Container exists, remove it first for clean state
+        # Container exists, remove it and its volumes for clean state
         subprocess.run(
-            ["docker", "rm", "-f", config['container_name']], 
+            ["docker", "rm", "-f", "-v", config['container_name']], 
             capture_output=True,
         )
     
@@ -235,9 +235,9 @@ def start_worker_database(worker_id: int) -> Dict[str, any]:
 
 def stop_worker_database(worker_id: int):
     """
-    Stop and remove worker's Neo4j container.
+    Stop and remove worker's Neo4j container and its volumes.
     
-    Forcefully removes the container (even if running).
+    Forcefully removes the container and associated volumes.
     Safe to call even if container doesn't exist.
     
     Args:
@@ -247,9 +247,9 @@ def stop_worker_database(worker_id: int):
     
     config = get_worker_db_config(worker_id)
     
-    # Force remove container (suppresses errors if doesn't exist)
+    # Force remove container AND its volumes (-v flag prevents orphaned volumes)
     subprocess.run(
-        ["docker", "rm", "-f", config['container_name']],
+        ["docker", "rm", "-f", "-v", config['container_name']],
         capture_output=True,
     )
     
@@ -653,12 +653,12 @@ def _evaluate_batch_worker(args: Tuple[List[EvalCase], str, int]) -> List[EvalRe
     3. Tears down container when done (if started)
     
     Args:
-        args: (cases, config, worker_id, trajectory_dir)
+        args: (cases, config, worker_id, trajectory_dir, context_expand_lines)
         
     Returns:
         List of EvalResult for processed cases
     """
-    cases, config, worker_id, trajectory_dir = args
+    cases, config, worker_id, trajectory_dir, context_expand_lines = args
     
     # Apply stderr filter in worker process (workers don't inherit main process filter)
     import sys
@@ -683,7 +683,12 @@ def _evaluate_batch_worker(args: Tuple[List[EvalCase], str, int]) -> List[EvalRe
     try:
         results = []
         # Create SZZ with worker-specific database and fallback setting
-        szz = AgenticSZZ(cases[0].repo_path, db_config=db_config, use_context_fallback=use_context_fallback)
+        szz = AgenticSZZ(
+            cases[0].repo_path, 
+            db_config=db_config, 
+            use_context_fallback=use_context_fallback,
+            context_expand_lines=context_expand_lines,
+        )
         
         # Use tqdm for progress if single worker (worker_id == 0 and called directly)
         case_iter = tqdm(cases, desc=f"Worker {worker_id}: {config}") if len(cases) > 1 else cases
@@ -691,7 +696,12 @@ def _evaluate_batch_worker(args: Tuple[List[EvalCase], str, int]) -> List[EvalRe
         for case in case_iter:
             # Update repo path if different dataset
             if case.repo_path != szz.repo_path:
-                szz = AgenticSZZ(case.repo_path, db_config=db_config, use_context_fallback=use_context_fallback)
+                szz = AgenticSZZ(
+                    case.repo_path, 
+                    db_config=db_config, 
+                    use_context_fallback=use_context_fallback,
+                    context_expand_lines=context_expand_lines,
+                )
             
             result = evaluate_case(case, config, szz, trajectory_dir)
             if result:
@@ -783,8 +793,6 @@ def save_config_results(
     
     Saves per-case JSON and updates summary CSV incrementally.
     """
-    prefix = output_dir.name  # e.g., "pilot" or "rq1"
-    
     # Add to summary rows
     summary_rows.append({
         "dataset": dataset,
@@ -826,15 +834,15 @@ def save_config_results(
             "model": model or os.environ.get("LLM_MODEL", "deepseek-chat"),
         })
     
-    json_path = output_dir / f"{prefix}_{dataset}_{config}_{timestamp}.json"
+    json_path = output_dir / f"{dataset}_{config}_{timestamp}.json"
     with open(json_path, "w") as f:
         json.dump(per_case_data, f, indent=2)
     print(f"Per-case results saved to {json_path}")
-    
+
     # Update summary CSV (overwrite with current data)
     if summary_rows:
         df = pd.DataFrame(summary_rows)
-        csv_path = output_dir / f"{prefix}_results_{timestamp}.csv"
+        csv_path = output_dir / f"results_{timestamp}.csv"
         df.to_csv(csv_path, index=False)
 
 
@@ -844,6 +852,7 @@ def run_config_evaluation(
     workers: int = 1,
     desc: str = None,
     trajectory_dir: str = None,
+    context_expand_lines: int = 0,
 ) -> List[EvalResult]:
     """
     Evaluate a list of cases with a single config, using parallel or sequential execution.
@@ -856,6 +865,7 @@ def run_config_evaluation(
         workers: Number of parallel workers (1 = sequential)
         desc: Description for progress bar
         trajectory_dir: Output directory for trajectories (trajectories saved under trajectory_dir/trajectories/)
+        context_expand_lines: Expand ±N lines around deleted lines for ancestor detection (0 = disabled)
         
     Returns:
         List of EvalResult objects
@@ -872,7 +882,7 @@ def run_config_evaluation(
             batches.append(cases[i:i + batch_size])
         
         work_items = [
-            (batch, config, worker_id, trajectory_dir)
+            (batch, config, worker_id, trajectory_dir, context_expand_lines)
             for worker_id, batch in enumerate(batches)
         ]
 
@@ -889,13 +899,13 @@ def run_config_evaluation(
                     batch_results = future.result()  # Returns list
                     results.extend(batch_results)
                 except Exception as e:
-                    batch, _, worker_id = futures[future]
+                    batch, _, worker_id, _, _ = futures[future]
                     print(f"  Worker {worker_id} error: {e}")
     else:
         # Single worker execution - use Docker container like multi-worker mode
         # This ensures no dependency on local Neo4j instance
         print(f"  Running {len(cases)} cases with single worker...")
-        work_item = (cases, config, 0, trajectory_dir)  # worker_id = 0
+        work_item = (cases, config, 0, trajectory_dir, context_expand_lines)  # worker_id = 0
         batch_results = _evaluate_batch_worker(work_item)
         results.extend(batch_results)
     
@@ -908,6 +918,7 @@ def run_evaluation(
     max_cases: int = None,
     workers: int = 1,
     trajectory_dir: str = None,
+    context_expand_lines: int = 0,
 ) -> Dict[str, DatasetMetrics]:
     """Run full evaluation on dataset with optional parallelization."""
 
@@ -931,7 +942,10 @@ def run_evaluation(
         print(f"{'=' * 60}")
 
         # Use shared helper for parallel/sequential execution
-        results = run_config_evaluation(cases, config, workers=workers, desc=config, trajectory_dir=trajectory_dir)
+        results = run_config_evaluation(
+            cases, config, workers=workers, desc=config, 
+            trajectory_dir=trajectory_dir, context_expand_lines=context_expand_lines
+        )
 
         metrics = compute_metrics(results)
         results_by_config[config] = (
@@ -980,7 +994,13 @@ def main():
         "--model",
         type=str,
         default=None,
-        help="LLM model to use (e.g., deepseek-chat, gpt-4o-mini). Overrides LLM_MODEL env var.",
+        help="LLM model to use (e.g., deepseek-v4-flash, deepseek-v4-pro, qwen3-coder-next). Overrides LLM_MODEL env var.",
+    )
+    parser.add_argument(
+        "--base-url",
+        type=str,
+        default=None,
+        help="LLM API base URL for OpenAI-compatible endpoint (e.g., http://localhost:8000/v1). Overrides LLM_BASE_URL env var.",
     )
     parser.add_argument(
         "--workers",
@@ -1000,6 +1020,12 @@ def main():
         default=None,
         help="Override candidate_limit (K) for sensitivity analysis (e.g., 5, 10, 20, 30, 50)",
     )
+    parser.add_argument(
+        "--context-expand",
+        type=int,
+        default=None,
+        help="Expand ±N lines around deleted lines for ancestor detection (e.g., 2 for LLM4SZZ-style)",
+    )
 
     args = parser.parse_args()
 
@@ -1007,6 +1033,13 @@ def main():
     if args.model:
         os.environ["LLM_MODEL"] = args.model
         print(f"Using LLM model: {args.model}")
+
+    # Override base URL if specified via CLI (for local/custom inference endpoints)
+    if args.base_url:
+        os.environ["LLM_BASE_URL"] = args.base_url
+        print(f"Using LLM base URL: {args.base_url}")
+
+    if args.model or args.base_url:
         # Refresh config singleton to pick up new env vars
         from agentic_szz.config.settings import get_config
         get_config(refresh=True)
@@ -1017,6 +1050,13 @@ def main():
         config = get_config()
         config.tkg.candidate_limit = args.candidate_limit
         print(f"Using candidate_limit (K) = {args.candidate_limit}")
+    
+    # Override context_expand_lines if specified via CLI (experimental, for ancestor detection)
+    if args.context_expand is not None:
+        from agentic_szz.config.settings import get_config
+        config = get_config()
+        config.tkg.context_expand_lines = args.context_expand
+        print(f"Using context_expand_lines = {args.context_expand}")
 
     # Setup
     output_dir = Path(args.output_dir)
@@ -1077,8 +1117,13 @@ def main():
             # Run each config and save immediately after completion
             for config in configs:
                 # Use shared helper for parallel/sequential execution
+                # Get context_expand_lines from global config (only for full config)
+                from agentic_szz.config.settings import get_config
+                ctx_expand = get_config().tkg.context_expand_lines if config == "full" else 0
                 config_results = run_config_evaluation(
-                    cases, config, workers=workers, desc=f"{dataset}/{config}", trajectory_dir=str(output_dir / "trajectories")
+                    cases, config, workers=workers, desc=f"{dataset}/{config}", 
+                    trajectory_dir=str(output_dir / "trajectories"),
+                    context_expand_lines=ctx_expand,
                 )
                 metrics = compute_metrics(config_results)
                 print(f"\n{config}: {metrics.correct}/{metrics.total_cases} correct ({metrics.precision*100:.1f}%)")
@@ -1093,16 +1138,33 @@ def main():
                     summary_rows=summary_rows,
                 )
         else:
-            results = run_evaluation(
-                dataset, configs, args.max_cases, workers=workers, trajectory_dir=str(output_dir / "trajectories")
-            )
-            # Save each config's results
-            for config, (metrics, per_case_results) in results.items():
+            from agentic_szz.config.settings import get_config
+            cases = load_dataset_cases(dataset, args.max_cases)
+            if not cases:
+                continue
+            valid_cases = [c for c in cases if Path(c.repo_path).exists()]
+            skipped = len(cases) - len(valid_cases)
+            if skipped > 0:
+                print(f"  Skipping {skipped} cases with missing repos")
+            cases = valid_cases
+            print(f"\n{'='*60}")
+            print(f"Running {len(cases)} {dataset} cases ({workers} workers)")
+            print(f"{'='*60}")
+            # Run each config separately so context_expand only applies to full
+            for config in configs:
+                ctx_expand = get_config().tkg.context_expand_lines if config == "full" else 0
+                config_results = run_config_evaluation(
+                    cases, config, workers=workers, desc=f"{dataset}/{config}",
+                    trajectory_dir=str(output_dir / "trajectories"),
+                    context_expand_lines=ctx_expand,
+                )
+                metrics = compute_metrics(config_results)
+                print(f"\n{config}: {metrics.correct}/{metrics.total_cases} correct ({metrics.precision*100:.1f}%)")
                 save_config_results(
                     dataset=dataset,
                     config=config,
                     metrics=metrics,
-                    per_case_results=per_case_results,
+                    per_case_results=config_results,
                     output_dir=output_dir,
                     timestamp=timestamp,
                     summary_rows=summary_rows,
@@ -1110,7 +1172,7 @@ def main():
 
     # Print final summary
     if summary_rows:
-        print(f"\nSummary saved to {output_dir / f'{output_dir.name}_results_{timestamp}.csv'}")
+        print(f"\nSummary saved to {output_dir / f'results_{timestamp}.csv'}")
         print("\n" + "=" * 80)
         print("SUMMARY")
         print("=" * 80)

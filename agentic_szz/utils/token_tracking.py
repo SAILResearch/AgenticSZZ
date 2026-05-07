@@ -1,12 +1,13 @@
 """
 Token and cost tracking for LLM API calls
 
+Used for RQ3 cost-effectiveness analysis.
 Supports multiple LLM providers (DeepSeek, OpenAI, etc.)
 """
 
 import time
 from dataclasses import dataclass, field
-from typing import List
+from typing import List, Optional
 
 from agentic_szz.config.settings import get_model_pricing
 

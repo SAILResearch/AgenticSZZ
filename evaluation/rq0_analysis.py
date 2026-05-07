@@ -284,6 +284,7 @@ def generate_insights(all_cases, summary):
 
 
 def generate_publication_figure(summary, output_path):
+    """Generate publication-quality figure of BIC category distribution"""
     import matplotlib.pyplot as plt
 
     # Professional color scheme - soft, pastel, academic-friendly
@@ -368,6 +369,7 @@ def generate_publication_figure(summary, output_path):
     # Styling
     ax.set_ylabel("Percentage of BICs (%)", fontsize=11, fontweight="500")
     ax.set_xlabel("Dataset", fontsize=11, fontweight="500")
+    # Title removed for publication - add via LaTeX \\caption{} instead
     ax.set_xticks(x)
     ax.set_xticklabels(dataset_labels, fontsize=11)
     ax.set_ylim(0, 100)
@@ -399,6 +401,8 @@ def generate_publication_figure(summary, output_path):
     plt.tight_layout()
     plt.savefig(output_path, bbox_inches="tight", dpi=300)
     plt.close()
+
+    print(f"\n✓ Publication figure saved: {output_path}")
 
 
 def generate_csv_summary(summary, output_path):
@@ -441,7 +445,7 @@ def generate_csv_summary(summary, output_path):
 
 
 def generate_blame_complexity_figures(all_cases, output_dir):
-    """
+    """Generate publication-quality figures for blame complexity analysis.
 
     Creates two separate PDF figures with per-dataset distributions:
     - rq0_deleted_lines.pdf: Distribution of deleted lines per case by dataset
@@ -594,19 +598,20 @@ def generate_blame_complexity_figures(all_cases, output_dir):
                         f"{value}",
                         ha="center",
                         va="center",
-                        fontsize=7,
+                        fontsize=10,
+                        fontweight="bold",
                         color=text_color,
                     )
 
         ax3.set_xticks(range(len(x_labels_hm)))
-        ax3.set_xticklabels(x_labels_hm, fontsize=8, rotation=45, ha="right")
+        ax3.set_xticklabels(x_labels_hm, fontsize=11, rotation=45, ha="right")
         ax3.set_yticks(range(len(y_labels_hm)))
-        ax3.set_yticklabels(y_labels_hm, fontsize=9)
-        ax3.set_xlabel("Deleted Lines", fontsize=10, fontweight="500")
-        ax3.set_ylabel("Blame Commits", fontsize=10, fontweight="500")
+        ax3.set_yticklabels(y_labels_hm, fontsize=11)
+        ax3.set_xlabel("Deleted Lines", fontsize=12, fontweight="500")
+        ax3.set_ylabel("Blame Commits", fontsize=12, fontweight="500")
 
         cbar = plt.colorbar(im, ax=ax3, shrink=0.8)
-        cbar.set_label("Cases", fontsize=9)
+        cbar.set_label("Cases", fontsize=11)
 
         apply_styling(ax3)
         plt.tight_layout()
@@ -806,6 +811,7 @@ def generate_file_depth_figures(all_cases, output_dir):
 def generate_file_depth_cdf(all_cases, output_dir):
     """Generate CDF (Cumulative Distribution Function) figure for file-depth coverage.
 
+    Creates a single publication-quality figure showing:
     - Ancestor file-depth coverage (blame → BIC)
     - Descendant file-depth coverage (BIC → BFC)
 
@@ -837,8 +843,8 @@ def generate_file_depth_cdf(all_cases, output_dir):
         print("⚠ No valid depth data found.")
         return
 
-    # Create figure
-    fig, ax = plt.subplots(figsize=(7, 5))
+    # Create figure - compact size with larger fonts
+    fig, ax = plt.subplots(figsize=(5, 3.5))
 
     # Colors
     ancestor_color = "#5B8FA3"  # Soft steel blue
@@ -876,7 +882,7 @@ def generate_file_depth_cdf(all_cases, output_dir):
             190,
             y_val + 1.5,
             f"{y_val}%",
-            fontsize=9,
+            fontsize=11,
             color="#666666",
             ha="left",
             fontweight="500",
@@ -892,7 +898,7 @@ def generate_file_depth_cdf(all_cases, output_dir):
                         f"{d}",
                         xy=(d, y_val),
                         xytext=(d, y_val - 8),
-                        fontsize=9,
+                        fontsize=11,
                         color=ancestor_color,
                         fontweight="bold",
                         ha="center",
@@ -906,21 +912,22 @@ def generate_file_depth_cdf(all_cases, output_dir):
                         f"{d}",
                         xy=(d, y_val),
                         xytext=(d, y_val + 5),
-                        fontsize=9,
+                        fontsize=11,
                         color=descendant_color,
                         fontweight="bold",
                         ha="center",
                     )
                     break
 
-    # Styling
-    ax.set_xlabel("File-History Depth Limit", fontsize=11, fontweight="500")
-    ax.set_ylabel("Coverage (%)", fontsize=11, fontweight="500")
+    # Styling - larger fonts for compact figure
+    ax.set_xlabel("File-History Depth Limit", fontsize=12, fontweight="500")
+    ax.set_ylabel("Coverage (%)", fontsize=12, fontweight="500")
     ax.set_xlim(0, 200)
     ax.set_ylim(0, 102)
     ax.legend(
         loc="lower right",
-        fontsize=10,
+        bbox_to_anchor=(1.0, 0.10),
+        fontsize=11,
         frameon=True,
         fancybox=False,
         framealpha=0.95,
@@ -1032,7 +1039,8 @@ def generate_blameless_coverage_figures(all_cases, output_dir):
             print(f"    Depth ≤{limit:3d}: {total_cov:4d}/{total} ({pct:.1f}%)")
 
     # Generate CDF figure with TWO curves (consistent with file_depth_coverage)
-    fig, ax = plt.subplots(figsize=(7, 5))
+    # Compact size with larger fonts for paper
+    fig, ax = plt.subplots(figsize=(5, 3.5))
 
     x_range = np.arange(0, 101, 1)
 
@@ -1071,7 +1079,7 @@ def generate_blameless_coverage_figures(all_cases, output_dir):
         95,
         y_threshold + 1.5,
         f"{y_threshold}%",
-        fontsize=9,
+        fontsize=11,
         color="#666666",
         ha="left",
         fontweight="500",
@@ -1085,7 +1093,7 @@ def generate_blameless_coverage_figures(all_cases, output_dir):
                     f"{d}",
                     xy=(d, y_threshold),
                     xytext=(d, y_threshold - 8),
-                    fontsize=9,
+                    fontsize=11,
                     color=ancestor_color,
                     fontweight="bold",
                     ha="center",
@@ -1098,7 +1106,7 @@ def generate_blameless_coverage_figures(all_cases, output_dir):
                     f"{d}",
                     xy=(d, y_threshold),
                     xytext=(d, y_threshold + 5),
-                    fontsize=9,
+                    fontsize=11,
                     color=descendant_color,
                     fontweight="bold",
                     ha="center",
@@ -1109,19 +1117,20 @@ def generate_blameless_coverage_figures(all_cases, output_dir):
     ax.annotate(
         f"+ Fallback Direct: {direct_count} cases ({direct_pct:.0f}% of blameless)",
         xy=(5, 5),
-        fontsize=9,
+        fontsize=10,
         color="#666666",
         fontweight="500",
     )
 
-    # Styling
-    ax.set_xlabel("File-History Depth Limit", fontsize=11, fontweight="500")
-    ax.set_ylabel("Coverage (%)", fontsize=11, fontweight="500")
+    # Styling - larger fonts for compact figure
+    ax.set_xlabel("File-History Depth Limit", fontsize=12, fontweight="500")
+    ax.set_ylabel("Coverage (%)", fontsize=12, fontweight="500")
     ax.set_xlim(0, 100)
     ax.set_ylim(0, 102)
     ax.legend(
         loc="lower right",
-        fontsize=10,
+        bbox_to_anchor=(1.0, 0.12),
+        fontsize=11,
         frameon=True,
         fancybox=False,
         framealpha=0.95,
@@ -1167,6 +1176,7 @@ def save_analysis_report(all_cases, summary, output_file):
 def generate_file_depth_cdf_per_dataset(all_cases, output_dir):
     """Generate individual CDF figures for file-depth coverage, one per dataset.
 
+    Creates separate publication-quality figures for each dataset showing:
     - Ancestor file-depth coverage (blame → BIC)
     - Descendant file-depth coverage (BIC → BFC)
 
@@ -1304,6 +1314,7 @@ def generate_file_depth_cdf_per_dataset(all_cases, output_dir):
 def generate_blameless_coverage_per_dataset(all_cases, output_dir):
     """Generate individual blameless coverage figures, one per dataset.
 
+    Creates separate publication-quality CDF figures for each dataset showing
     blameless case coverage at different depths.
 
     Output: rq0_blameless_depth_{dataset}.pdf (3 files) - consistent with blameable naming
@@ -1476,8 +1487,10 @@ def main():
     # Save report
     save_analysis_report(all_cases, summary, args.output)
 
+    # Generate publication outputs (in results/rq0 directory)
     from pathlib import Path
 
+    print("\nGenerating publication outputs...")
     generate_publication_figure(summary, Path(args.results_dir) / "rq0_category_distribution.pdf")
     generate_blame_complexity_figures(all_cases, args.results_dir)
     print("\nGenerating file-depth figures...")
@@ -1493,6 +1506,7 @@ def main():
     generate_blameless_coverage_per_dataset(all_cases, args.results_dir)
 
     generate_csv_summary(summary, Path(args.results_dir) / "rq0_summary_table.csv")
+    print(f"\n✓ Publication outputs saved to: {args.results_dir}/")
 
 
 if __name__ == "__main__":

@@ -613,7 +613,7 @@ def main():
         "--model",
         type=str,
         default="deepseek-chat",
-        choices=["deepseek-chat", "gpt-4o-mini"],
+        choices=["deepseek-chat", "deepseek-v4-pro", "gpt-4o-mini"],
         help="LLM model to use (default: deepseek-chat)",
     )
     parser.add_argument(

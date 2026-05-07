@@ -41,12 +41,17 @@ os.makedirs(RESULTS_DIR, exist_ok=True)
 # LLM Pricing (per token, 2025-01)
 # =============================================================================
 # Model pricing lookup - add new models here
+# Replication note: RQ1 was run with DeepSeek-V3.2 via the "deepseek-chat" alias
+# (official API, before Apr 2026). RQ3 and later runs use explicit model names
+# (deepseek-v4-flash / deepseek-v4-pro) per updated DeepSeek API (Apr 2026+).
 LLM_PRICING = {
-    # DeepSeek-V3 (official API)
+    # deepseek-chat: was DeepSeek-V3.2 (used for RQ1, run before Apr 2026).
+    # Alias now points to deepseek-v4-flash non-thinking (deprecated 2026-07-24).
+    # V3.2 pricing (pre-Apr 2026): "input": 2.8e-7, "cached": 2.8e-8, "output": 4.2e-7
     "deepseek-chat": {
-        "input": 2.8e-7,    # $0.28 / 1M tokens (cache miss)
-        "cached": 2.8e-8,   # $0.028 / 1M tokens (cache hit)
-        "output": 4.2e-7,   # $0.42 / 1M tokens
+        "input": 1.4e-7,    # $0.14 / 1M tokens (cache miss) — V4-Flash rates
+        "cached": 2.8e-9,   # $0.0028 / 1M tokens (cache hit, reduced 10x on 2026-04-26)
+        "output": 2.8e-7,   # $0.28 / 1M tokens
     },
     # GPT-4o-mini (OpenAI)
     "gpt-4o-mini": {
@@ -54,26 +59,50 @@ LLM_PRICING = {
         "cached": 7.5e-8,   # $0.075 / 1M tokens (cached)
         "output": 6.0e-7,   # $0.60 / 1M tokens
     },
+    # DeepSeek-V4-Flash — explicit name (use instead of deprecated deepseek-chat alias)
+    # Supports thinking mode (extra_body={"thinking": {"type": "enabled"}})
+    "deepseek-v4-flash": {
+        "input": 1.4e-7,    # $0.14 / 1M tokens (cache miss)
+        "cached": 2.8e-9,   # $0.0028 / 1M tokens (cache hit, reduced 10x on 2026-04-26)
+        "output": 2.8e-7,   # $0.28 / 1M tokens
+    },
+    # DeepSeek-V4-Pro — explicit name, frontier model with thinking
+    # Pricing: regular rates; 75% discount valid until 2026-05-31
+    # Regular: "input": 1.74e-6, "cached": 1.45e-8, "output": 3.48e-6
+    "deepseek-v4-pro": {
+        "input": 4.35e-7,   # $0.435 / 1M tokens (cache miss, discounted)
+        "cached": 3.625e-10, # $0.000363 / 1M tokens (cache hit, discounted)
+        "output": 8.7e-7,   # $0.87 / 1M tokens (discounted)
+    },
+    # RQ3 local models (served via vLLM) — no cost
+    "qwen3-coder-next": {"input": 0.0, "cached": 0.0, "output": 0.0},
+    "gemma-4-31b":      {"input": 0.0, "cached": 0.0, "output": 0.0},
+    "devstral-small-2": {"input": 0.0, "cached": 0.0, "output": 0.0},
 }
 
 
 def get_model_pricing(model: str) -> dict:
-    """Get pricing for a model. Falls back to deepseek-chat if unknown."""
+    """Get pricing for a model. Falls back to deepseek-v4-flash if unknown."""
     # Normalize model name (handle prefixes like "openai:" or "deepseek:")
     model_name = model.split(":")[-1] if ":" in model else model
-    return LLM_PRICING.get(model_name, LLM_PRICING["deepseek-chat"])
+    return LLM_PRICING.get(model_name, LLM_PRICING["deepseek-v4-flash"])
 
 
 @dataclass
 class LLMConfig:
     """LLM configuration - supports DeepSeek and OpenAI-compatible APIs
-    
+
+    Replication note:
+    - RQ1 used DeepSeek-V3.2 via model="deepseek-chat" (official API, before Apr 2026)
+    - RQ3 and later use explicit model names: deepseek-v4-flash / deepseek-v4-pro
+
     Supports multiple providers:
-    - DeepSeek: Set LLM_BASE_URL=https://api.deepseek.com, LLM_MODEL=deepseek-chat
-    - OpenAI: Set LLM_BASE_URL=https://api.openai.com, LLM_MODEL=gpt-4o-mini
-    
+    - DeepSeek: LLM_BASE_URL=https://api.deepseek.com, LLM_MODEL=deepseek-v4-flash
+    - OpenAI: LLM_BASE_URL=https://api.openai.com, LLM_MODEL=gpt-4o-mini
+    - Local vLLM: LLM_BASE_URL=http://host/v1, LLM_MODEL=<model-slug>
+
     Environment variables:
-    - LLM_MODEL: Model name (default: deepseek-chat)
+    - LLM_MODEL: Model name (default: deepseek-v4-flash)
     - LLM_BASE_URL: API base URL (default: https://api.deepseek.com)
     - DEEPSEEK_API_KEY: DeepSeek API key (used when model contains 'deepseek')
     - OPENAI_API_KEY: OpenAI API key (used for gpt-* models)
@@ -81,7 +110,7 @@ class LLMConfig:
 
     # Model settings
     model: str = field(
-        default_factory=lambda: os.environ.get("LLM_MODEL", "deepseek-chat")
+        default_factory=lambda: os.environ.get("LLM_MODEL", "deepseek-v4-flash")
     )
     api_key: Optional[str] = field(default=None)  # Set in __post_init__
     base_url: str = field(
@@ -89,21 +118,23 @@ class LLMConfig:
             "LLM_BASE_URL", "https://api.deepseek.com"
         )
     )
-    
+
     def __post_init__(self):
         """Select API key and base_url based on model type."""
         # Auto-detect base_url from model if not explicitly set via env
         if not os.environ.get("LLM_BASE_URL"):
             if "gpt" in self.model.lower():
                 self.base_url = "https://api.openai.com"
-        
-        # Select API key based on model type
+            elif "deepseek" in self.model.lower():
+                self.base_url = "https://api.deepseek.com"
+
+        # Select API key from environment based on provider
         if self.api_key is None:
             if "deepseek" in self.model.lower():
                 self.api_key = os.environ.get("DEEPSEEK_API_KEY")
-            else:
-                # For OpenAI models (gpt-4o, gpt-4o-mini, etc.)
+            elif any(k in self.model.lower() for k in ("gpt", "openai")):
                 self.api_key = os.environ.get("OPENAI_API_KEY")
+            # else: local model — api_key stays None; agent code supplies dummy key
 
     # Generation parameters
     temperature: float = 0.0
@@ -179,6 +210,11 @@ class TKGConfig:
     # Agent visibility limit: how many candidates list_candidates() returns
     # Change this value for sensitivity analysis (e.g., 10, 20, 30)
     candidate_limit: int = 20
+    
+    # Context expansion for blame analysis.
+    # Expand ±N lines around each deleted line to help find ancestor commits.
+    # Default 0 (disabled); use --context-expand CLI flag to enable (e.g., 2).
+    context_expand_lines: int = 0
 
 
 @dataclass

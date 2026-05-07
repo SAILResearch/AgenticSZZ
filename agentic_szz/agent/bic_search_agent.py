@@ -182,6 +182,7 @@ class BICSearchAgent:
         self.model_name = model or self._get_model_string()
         self.output_dir = output_dir  # Kept for compatibility, not used in new impl
         # Note: Agents are created fresh per prediction to avoid httpx client
+        # lifecycle issues with event loops (fixes "Event loop is closed" errors)
 
     def _get_model_string(self) -> str:
         """Get model string for pydantic-ai."""
@@ -193,32 +194,43 @@ class BICSearchAgent:
             return f"openai:{self.llm_config.model}"
         return self.llm_config.model
 
+    def _model_settings(self) -> dict:
+        """Return extra_body for non-thinking mode on DeepSeek models."""
+        if "deepseek" in self.llm_config.base_url.lower():
+            return {"extra_body": {"thinking": {"type": "disabled"}}}
+        return {}
+
     def _get_model(self):
         """Get configured pydantic-ai model instance.
 
-        Supports:
-        - DeepSeek API (OpenAI-compatible with custom base_url)
-        - OpenAI API (standard)
+        Supports DeepSeek API, OpenAI API, and any OpenAI-compatible local endpoint.
+        Local endpoints (vLLM, etc.) require no real API key — "local" is used as a
+        dummy value since the OpenAI client library requires a non-empty string.
         """
-        # DeepSeek: OpenAI-compatible API with custom base_url
-        if "deepseek" in self.llm_config.base_url.lower():
+        base_url = self.llm_config.base_url
+        api_key = self.llm_config.api_key or "local"
+
+        if "deepseek" in base_url.lower():
             return OpenAIChatModel(
                 model_name=self.llm_config.model,
                 provider=OpenAIProvider(
-                    base_url=self.llm_config.base_url + "/v1",
-                    api_key=self.llm_config.api_key,
+                    base_url=base_url + "/v1",
+                    api_key=api_key,
                 ),
             )
-        # OpenAI: Standard API
-        if "openai" in self.llm_config.base_url.lower():
+        if "openai" in base_url.lower():
             return OpenAIChatModel(
                 model_name=self.llm_config.model,
-                provider=OpenAIProvider(
-                    api_key=self.llm_config.api_key,
-                ),
+                provider=OpenAIProvider(api_key=api_key),
             )
-        # Fallback: use model string directly
-        return self.model_name
+        # Generic OpenAI-compatible endpoint (local vLLM, etc.)
+        return OpenAIChatModel(
+            model_name=self.llm_config.model,
+            provider=OpenAIProvider(
+                base_url=base_url,
+                api_key=api_key,
+            ),
+        )
 
     def _create_tkg_agent(self) -> Agent[GraphitiContext, GraphitiBICPrediction]:
         """Create a fresh TKG agent (with Graphiti tools).
@@ -416,7 +428,8 @@ Look for candidates that modified the SAME FUNCTIONS as the BFC. Start by callin
             result = await agent.run(
                 prompt,
                 deps=ctx,
-                usage_limits=UsageLimits(request_limit=10),
+                usage_limits=UsageLimits(request_limit=30),
+                model_settings=self._model_settings(),
             )
             prediction = result.output
 
@@ -506,6 +519,7 @@ Analyze the candidates above and predict which one is the BIC."""
             result = await simple_agent.run(
                 prompt,
                 usage_limits=UsageLimits(request_limit=3),
+                model_settings=self._model_settings(),
             )
             prediction = result.output
 

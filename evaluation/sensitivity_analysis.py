@@ -203,9 +203,12 @@ def plot_sensitivity(
     }
 
     # Generate three separate figures
+    # Legend is placed inside the first (precision) figure
     base_path = output_path.parent / output_path.stem
+    metric_order = ["precision", "recall", "f1"]  # Define order to ensure precision is first
     
-    for metric_name, dataset_values in metrics_data.items():
+    for idx, metric_name in enumerate(metric_order):
+        dataset_values = metrics_data[metric_name]
         fig, ax = plt.subplots(figsize=(4.5, 3.5))
 
         for ds, values in dataset_values.items():
@@ -232,7 +235,16 @@ def plot_sensitivity(
         ax.set_ylim(0, 0.8)  # Start from 0 per reviewer request
         ax.grid(True, alpha=0.3, linestyle="--")
         
-        # No legend on individual figures - will use shared legend below
+        # Add legend to first figure (precision) only
+        if idx == 0:
+            ax.legend(
+                loc='lower right',
+                frameon=True,
+                fancybox=False,
+                edgecolor="gray",
+                fontsize=11,
+            )
+        
         plt.tight_layout()
 
         # Save individual figure
@@ -240,33 +252,6 @@ def plot_sensitivity(
         plt.savefig(metric_output, dpi=300, bbox_inches="tight")
         print(f"Saved {metric_name} figure to {metric_output}")
         plt.close()
-
-    # Generate a separate legend figure
-    fig_legend, ax_legend = plt.subplots(figsize=(6, 0.5))
-    ax_legend.axis('off')
-    
-    # Create dummy lines for legend
-    lines = []
-    for ds in ["linux", "apache", "github"]:
-        line, = ax_legend.plot([], [], "o-", linewidth=2.5, markersize=8, 
-                               color=colors[ds], label=labels[ds])
-        lines.append(line)
-    
-    # Create horizontal legend
-    legend = ax_legend.legend(
-        handles=lines,
-        loc='center',
-        ncol=3,
-        frameon=True,
-        fancybox=False,
-        edgecolor="gray",
-        fontsize=12,
-    )
-    
-    legend_output = base_path.parent / f"{base_path.name}_legend.pdf"
-    plt.savefig(legend_output, dpi=300, bbox_inches="tight")
-    print(f"Saved legend figure to {legend_output}")
-    plt.close()
 
     # Also save the original combined F1 figure for backward compatibility
     fig, ax = plt.subplots(figsize=(7, 4.5))

@@ -6,16 +6,15 @@ Analyzes the impact of candidate_limit (K) on accuracy.
 Generates figure for Discussion section.
 
 Usage:
-    # First, run evaluations with different K values:
-    python evaluation/run_evaluation.py --candidate-limit 5 --output-dir results/sensitivity_k5 --sample-file results/pilot/pilot_cases_20pct.json --config full --workers 32 --dataset all
-    python evaluation/run_evaluation.py --candidate-limit 10 --output-dir results/sensitivity_k10 ...
-    python evaluation/run_evaluation.py --candidate-limit 15 --output-dir results/sensitivity_k15 ...
-    python evaluation/run_evaluation.py --candidate-limit 20 --output-dir results/sensitivity_k20 ...
-    python evaluation/run_evaluation.py --candidate-limit 30 --output-dir results/sensitivity_k30 ...
-    python evaluation/run_evaluation.py --candidate-limit 50 --output-dir results/sensitivity_k50 ...
+    # Run all six K values and generate the figure:
+    bash evaluation/run_sensitivity_analysis.sh
+
+    # Or run one K value at a time. Every flag apart from --candidate-limit must
+    # match the main full run, so that the curve isolates K:
+    python evaluation/run_evaluation.py --candidate-limit 5 --output-dir results/sensitivity_analysis/sensitivity_k5 --sample-file results/pilot/pilot_cases_20pct.json --config full --context-expand 2 --workers 16 --dataset all
 
     # Then generate the figure:
-    python evaluation/sensitivity_analysis.py --results-dir results --output figures/sensitivity_k.pdf
+    python evaluation/sensitivity_analysis.py --results-dir results/sensitivity_analysis --output figures/sensitivity_k.pdf --show-datasets
 """
 
 import argparse
@@ -60,7 +59,7 @@ def load_results(results_dir: Path) -> Dict[int, Dict[str, float]]:
             continue
 
         # Look for CSV files with results
-        csv_files = list(subdir.glob("*_results_*.csv"))
+        csv_files = list(subdir.glob("*results_*.csv"))
         if not csv_files:
             # Try JSON files
             json_files = list(subdir.glob("*_full_*.json"))

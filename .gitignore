@@ -12,3 +12,12 @@ dataset/subject_repos/
 .env
 .env.local
 *.env
+
+# Generated experiments and figures
+/results/*
+!/results/sample/
+/figures/
+/tests/results/
+/dataset/clone_output.log
+/dataset/failed_repos.txt
+/vendor/

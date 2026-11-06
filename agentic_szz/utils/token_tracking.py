@@ -19,7 +19,7 @@ class TokenUsage:
     input_tokens: int = 0
     output_tokens: int = 0
     cached_tokens: int = 0  # Tokens served from cache
-    model: str = "deepseek-chat"  # Model name for pricing lookup
+    model: str = "deepseek-v4-pro"  # Model name for pricing lookup (D7 primary)
 
     @classmethod
     def from_pydantic_ai(cls, usage, model: str = "deepseek-chat") -> "TokenUsage":

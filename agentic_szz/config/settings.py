@@ -44,6 +44,10 @@ os.makedirs(RESULTS_DIR, exist_ok=True)
 # Replication note: RQ1 was run with DeepSeek-V3.2 via the "deepseek-chat" alias
 # (official API, before Apr 2026). RQ3 and later runs use explicit model names
 # (deepseek-v4-flash / deepseek-v4-pro) per updated DeepSeek API (Apr 2026+).
+# Historical entries below are kept so old result files remain interpretable.
+# cost_usd is computed at run time and stored per case, so editing this table
+# never changes results already on disk. Only deepseek-v4-pro is current; the
+# rest are not called by the TOSEM revision runs.
 LLM_PRICING = {
     # deepseek-chat: was DeepSeek-V3.2 (used for RQ1, run before Apr 2026).
     # Alias now points to deepseek-v4-flash non-thinking (deprecated 2026-07-24).
@@ -66,13 +70,40 @@ LLM_PRICING = {
         "cached": 2.8e-9,   # $0.0028 / 1M tokens (cache hit, reduced 10x on 2026-04-26)
         "output": 2.8e-7,   # $0.28 / 1M tokens
     },
-    # DeepSeek-V4-Pro — explicit name, frontier model with thinking
-    # Pricing: regular rates; 75% discount valid until 2026-05-31
-    # Regular: "input": 1.74e-6, "cached": 1.45e-8, "output": 3.48e-6
+    # DeepSeek-V4-Pro: the primary model (D7), frontier model with thinking.
+    #
+    # OFF-PEAK RATES, confirmed against api-docs.deepseek.com/quick_start/pricing
+    # on 2026-09-05 and cross-checked against the CNY table (Y0.15 / Y4.5 / Y13.5).
+    # Peak is exactly double. Peak hours are 01:00 to 04:00 and 06:00 to 10:00
+    # UTC, Monday to Friday only; every other hour, and all weekend, is off-peak.
+    #
+    # All evaluation runs are scheduled inside the off-peak window, so these are
+    # the rates that apply. A run that spills into peak would be billed at double
+    # and the recorded cost would understate it.
+    #
+    # The previous values here were the "75% discount until 2026-05-31" rates,
+    # which expired before DeepSeek restructured to peak and off-peak billing on
+    # 2026-08-16. They understated cache-hit cost by roughly 60x, which dominates
+    # because this workload runs at about 77% cache hits.
     "deepseek-v4-pro": {
-        "input": 4.35e-7,   # $0.435 / 1M tokens (cache miss, discounted)
-        "cached": 3.625e-10, # $0.000363 / 1M tokens (cache hit, discounted)
-        "output": 8.7e-7,   # $0.87 / 1M tokens (discounted)
+        "input": 6.6e-7,    # $0.66 / 1M tokens (cache miss, off-peak)
+        "cached": 2.2e-8,   # $0.022 / 1M tokens (cache hit, off-peak)
+        "output": 1.98e-6,  # $1.98 / 1M tokens (off-peak)
+    },
+    # DeepSeek-V4.1-Flash: the fifth RQ3 model (D9), served under the name
+    # "deepseek-flash". The API lists only deepseek-flash and deepseek-v4-pro;
+    # the retired deepseek-v4-flash alias is now routed to V4.1-Flash as well,
+    # but its historical entry above is left as-is so old result files stay
+    # interpretable. That entry is why this one is needed: get_model_pricing()
+    # falls back to it, and its output rate is 2.1x too low for V4.1-Flash.
+    #
+    # OFF-PEAK RATES, confirmed against api-docs.deepseek.com/quick_start/pricing
+    # on 2026-09-18 in the same fetch that reproduced the v4-pro rates above.
+    # Peak is exactly double, in the same windows noted for v4-pro.
+    "deepseek-flash": {
+        "input": 1.5e-7,    # $0.15 / 1M tokens (cache miss, off-peak)
+        "cached": 3.0e-9,   # $0.003 / 1M tokens (cache hit, off-peak)
+        "output": 6.0e-7,   # $0.60 / 1M tokens (off-peak)
     },
     # RQ3 local models (served via vLLM) — no cost
     "qwen3-coder-next": {"input": 0.0, "cached": 0.0, "output": 0.0},
@@ -110,7 +141,11 @@ class LLMConfig:
 
     # Model settings
     model: str = field(
-        default_factory=lambda: os.environ.get("LLM_MODEL", "deepseek-v4-flash")
+        # D7: DeepSeek retired V3.2, the paper's original primary model, so
+        # deepseek-v4-pro is the primary for RQ1, RQ2 and the controlled
+        # comparison. The old "deepseek-chat" alias is deprecated and no longer
+        # denotes V3.2, so it must not be used as a default.
+        default_factory=lambda: os.environ.get("LLM_MODEL", "deepseek-v4-pro")
     )
     api_key: Optional[str] = field(default=None)  # Set in __post_init__
     base_url: str = field(
@@ -134,10 +169,27 @@ class LLMConfig:
                 self.api_key = os.environ.get("DEEPSEEK_API_KEY")
             elif any(k in self.model.lower() for k in ("gpt", "openai")):
                 self.api_key = os.environ.get("OPENAI_API_KEY")
-            # else: local model — api_key stays None; agent code supplies dummy key
+            else:
+                # Local model (SAIL LLM cluster): personal key from .env, never committed
+                self.api_key = os.environ.get("LOCAL_LLMS_API_KEY")
 
-    # Generation parameters
-    temperature: float = 0.0
+    # Generation parameters.
+    # Read from LLM_TEMPERATURE so --temperature can reach worker processes,
+    # the same way --model and --base-url already propagate.
+    #
+    # Default 1.0, matching DeepSeek's documented default, which is what the
+    # original runs used before temperature was passed at all. Measured over
+    # 100 cases per arm, temperature 0 makes the agent exhaust request_limit
+    # far more often: 17% of cases return no prediction against 4% at 1.0.
+    # On the full DS_LINUX set at temperature 0 the
+    # rate reached 30%, burning $27 of $35 on cases that produced nothing.
+    #
+    # Section 5 claims temperature 0; that claim is corrected rather than
+    # implemented, because implementing it measurably degrades the approach.
+    # Sent explicitly rather than omitted so the setting is reproducible.
+    temperature: float = field(
+        default_factory=lambda: float(os.environ.get("LLM_TEMPERATURE", "1.0"))
+    )
     max_tokens: int = 4096
     
     @property

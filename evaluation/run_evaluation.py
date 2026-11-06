@@ -217,7 +217,13 @@ def start_worker_database(worker_id: int) -> Dict[str, any]:
     
     health_url = f"http://localhost:{config['http_port']}"
     
-    for attempt in range(45):  # Up to 45 seconds total
+    # 45s was too tight: with many workers starting at once on a shared machine,
+    # containers were observed taking 47 to 48 seconds, so workers failed at
+    # random and whole datasets were skipped. Startup cost is paid once per
+    # worker, so a generous ceiling costs nothing when the container is healthy.
+    READY_TIMEOUT_S = 180
+
+    for attempt in range(READY_TIMEOUT_S):
         try:
             req = urllib.request.urlopen(health_url, timeout=2)
             if req.status == 200:
@@ -225,12 +231,14 @@ def start_worker_database(worker_id: int) -> Dict[str, any]:
                 return config
         except (urllib.error.URLError, urllib.error.HTTPError, OSError):
             pass
-        
+
         time.sleep(1)
-    
+
     # Failed to start within timeout
     stop_worker_database(worker_id)  # Cleanup
-    raise RuntimeError(f"Worker {worker_id} Neo4j failed to become ready within 45s")
+    raise RuntimeError(
+        f"Worker {worker_id} Neo4j failed to become ready within {READY_TIMEOUT_S}s"
+    )
 
 
 def stop_worker_database(worker_id: int):
@@ -293,6 +301,11 @@ class EvalResult:
     tokens_cached: int = 0
     cost_usd: float = 0.0
     agent_steps: int = 0
+    # Scalability metrics (R1.8)
+    node_count: int = 0
+    edge_count: int = 0
+    file_count: int = 0
+    peak_rss_mb: float = 0.0
 
 
 @dataclass
@@ -595,6 +608,13 @@ def evaluate_case(
             result = szz.predict(case.bfc, skip_tkg=False, skip_agent=True, **traj_kwargs)
         elif config == "agent_only":
             result = szz.predict(case.bfc, skip_tkg=True, skip_agent=False, **traj_kwargs)
+        elif config == "full_no_graph":
+            # AgenticSZZ (w/o graph): same TKG candidate set as full, presented as a
+            # flat list with no graph tools. Isolates the graph from the
+            # candidate space, which agent_only cannot do (R2.11a, R1.2).
+            result = szz.predict(
+                case.bfc, skip_tkg=False, skip_agent=False, skip_graph=True, **traj_kwargs
+            )
         elif config == "full":
             result = szz.predict(case.bfc, **traj_kwargs)
         else:
@@ -631,6 +651,10 @@ def evaluate_case(
             tokens_cached=result.tokens_cached,
             cost_usd=result.cost_usd,
             agent_steps=result.agent_steps,
+            node_count=result.tkg_result.stats.node_count if result.tkg_result else 0,
+            edge_count=result.tkg_result.stats.edge_count if result.tkg_result else 0,
+            file_count=result.tkg_result.stats.file_count if result.tkg_result else 0,
+            peak_rss_mb=result.tkg_result.stats.peak_rss_mb if result.tkg_result else 0.0,
         )
         
         # NO per-case cleanup - cases are isolated by unique group_id
@@ -668,7 +692,10 @@ def _evaluate_batch_worker(args: Tuple[List[EvalCase], str, int]) -> List[EvalRe
     # Only start Neo4j container for configs that use TKG
     # Only start Neo4j container for configs that use TKG
     # blame_only, blame_fallback, agent_only don't need Neo4j
-    needs_neo4j = config in ("full", "tkg_only")
+    # full_no_graph builds the TKG exactly as full does and only withholds the
+    # graph tools from the agent, so it needs Neo4j. Omitting it here silently
+    # degenerates the ablation to blame-only candidates.
+    needs_neo4j = config in ("full", "full_no_graph", "tkg_only")
     
     # Determine if context fallback should be enabled
     # blame_only = pure SZZ (no fallback), all others use fallback
@@ -793,11 +820,26 @@ def save_config_results(
     
     Saves per-case JSON and updates summary CSV incrementally.
     """
+    # A zero-case result is always a failure, never a finding. Writing one
+    # produces an empty JSON, a summary row of 0/0, and exit code 0, which is
+    # indistinguishable from success until someone opens the file.
+    if not per_case_results:
+        raise RuntimeError(
+            f"{dataset}/{config} produced 0 cases. Refusing to write an empty "
+            f"result that would look like a completed run."
+        )
+
+    # Report the model actually configured rather than a second literal that can
+    # drift from it. The old fallback here said "deepseek-chat" while settings.py
+    # resolved to a different model, so a run could be labelled with a model that
+    # was never called.
+    from agentic_szz.config.settings import get_config
+
     # Add to summary rows
     summary_rows.append({
         "dataset": dataset,
         "config": config,
-        "model": model or os.environ.get("LLM_MODEL", "deepseek-chat"),
+        "model": model or get_config().llm.model,
         "total_cases": metrics.total_cases,
         "correct": metrics.correct,
         "precision": round(metrics.precision, 3),
@@ -831,7 +873,11 @@ def save_config_results(
             "tokens_cached": r.tokens_cached,
             "cost_usd": round(r.cost_usd, 6),
             "agent_steps": r.agent_steps,
-            "model": model or os.environ.get("LLM_MODEL", "deepseek-chat"),
+            "node_count": r.node_count,
+            "edge_count": r.edge_count,
+            "file_count": r.file_count,
+            "peak_rss_mb": round(r.peak_rss_mb, 1),
+            "model": model or get_config().llm.model,
         })
     
     json_path = output_dir / f"{dataset}_{config}_{timestamp}.json"
@@ -892,6 +938,7 @@ def run_config_evaluation(
                 for item in work_items
             }
 
+            failed = []
             for future in tqdm(
                 as_completed(futures), total=len(futures), desc=f"{desc} (workers)"
             ):
@@ -900,7 +947,21 @@ def run_config_evaluation(
                     results.extend(batch_results)
                 except Exception as e:
                     batch, _, worker_id, _, _ = futures[future]
-                    print(f"  Worker {worker_id} error: {e}")
+                    failed.append((worker_id, len(batch), e))
+                    print(f"  Worker {worker_id} error: {e}", flush=True)
+
+            # Fail loudly. A dead worker silently drops its whole batch, and the
+            # run still exits 0 with a summary CSV. That is how a Neo4j startup
+            # race produced an empty DS_APACHE and DS_GITHUB while reporting
+            # "0/0 correct" as success, after paying for the DS_LINUX portion.
+            if failed:
+                lost = sum(n for _, n, _ in failed)
+                raise RuntimeError(
+                    f"{len(failed)} of {len(futures)} workers failed for {desc}, "
+                    f"losing {lost} of {len(cases)} cases. "
+                    f"First error: {failed[0][2]}. "
+                    f"Refusing to report partial results as complete."
+                )
     else:
         # Single worker execution - use Docker container like multi-worker mode
         # This ensures no dependency on local Neo4j instance
@@ -976,7 +1037,15 @@ def main():
         "--config",
         type=str,
         default="all",
-        choices=["blame_only", "blame_fallback", "tkg_only", "agent_only", "full", "all"],
+        choices=[
+            "blame_only",
+            "blame_fallback",
+            "tkg_only",
+            "agent_only",
+            "full_no_graph",
+            "full",
+            "all",
+        ],
     )
     parser.add_argument(
         "--max-cases",
@@ -1001,6 +1070,14 @@ def main():
         type=str,
         default=None,
         help="LLM API base URL for OpenAI-compatible endpoint (e.g., http://localhost:8000/v1). Overrides LLM_BASE_URL env var.",
+    )
+    parser.add_argument(
+        "--temperature",
+        type=float,
+        default=None,
+        help="Sampling temperature. Overrides LLM_TEMPERATURE. Note that 0.0 makes "
+             "the agent loop into the request limit far more often than the provider "
+             "default (DeepSeek documents 1.0).",
     )
     parser.add_argument(
         "--workers",
@@ -1039,7 +1116,11 @@ def main():
         os.environ["LLM_BASE_URL"] = args.base_url
         print(f"Using LLM base URL: {args.base_url}")
 
-    if args.model or args.base_url:
+    if args.temperature is not None:
+        os.environ["LLM_TEMPERATURE"] = str(args.temperature)
+        print(f"Using temperature: {args.temperature}")
+
+    if args.model or args.base_url or args.temperature is not None:
         # Refresh config singleton to pick up new env vars
         from agentic_szz.config.settings import get_config
         get_config(refresh=True)
@@ -1064,7 +1145,14 @@ def main():
 
     # Determine configs to run
     if args.config == "all":
-        configs = ["blame_only", "blame_fallback", "tkg_only", "agent_only", "full"]
+        configs = [
+            "blame_only",
+            "blame_fallback",
+            "tkg_only",
+            "agent_only",
+            "full_no_graph",
+            "full",
+        ]
     else:
         configs = [args.config]
 
@@ -1119,7 +1207,11 @@ def main():
                 # Use shared helper for parallel/sequential execution
                 # Get context_expand_lines from global config (only for full config)
                 from agentic_szz.config.settings import get_config
-                ctx_expand = get_config().tkg.context_expand_lines if config == "full" else 0
+                ctx_expand = (
+                    get_config().tkg.context_expand_lines
+                    if config in ("full", "full_no_graph")
+                    else 0
+                )
                 config_results = run_config_evaluation(
                     cases, config, workers=workers, desc=f"{dataset}/{config}", 
                     trajectory_dir=str(output_dir / "trajectories"),
@@ -1152,7 +1244,11 @@ def main():
             print(f"{'='*60}")
             # Run each config separately so context_expand only applies to full
             for config in configs:
-                ctx_expand = get_config().tkg.context_expand_lines if config == "full" else 0
+                ctx_expand = (
+                    get_config().tkg.context_expand_lines
+                    if config in ("full", "full_no_graph")
+                    else 0
+                )
                 config_results = run_config_evaluation(
                     cases, config, workers=workers, desc=f"{dataset}/{config}",
                     trajectory_dir=str(output_dir / "trajectories"),

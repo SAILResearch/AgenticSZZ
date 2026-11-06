@@ -33,7 +33,7 @@ from typing import Dict, List, Optional, Tuple
 
 # Project paths
 PROJECT_ROOT = Path(__file__).parent.parent
-LLM4SZZ_DIR = PROJECT_ROOT / "vendor" / "llmszz-replication"
+LLM4SZZ_DIR = Path(os.environ.get("LLM4SZZ_DIR", PROJECT_ROOT / "vendor" / "llmszz-replication")).expanduser().resolve()
 DATASET_DIR = PROJECT_ROOT / "dataset"
 REPOS_DIR = DATASET_DIR / "subject_repos"
 

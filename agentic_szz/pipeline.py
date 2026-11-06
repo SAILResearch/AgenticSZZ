@@ -193,6 +193,7 @@ class AgenticSZZ:
         bfc: str,
         skip_tkg: bool = False,
         skip_agent: bool = False,
+        skip_graph: bool = False,
         cleanup_after: bool = False,
         save_trajectory: bool = True,
         trajectory_dir: str = None,
@@ -207,6 +208,8 @@ class AgenticSZZ:
             bfc: Bug-fixing commit SHA
             skip_tkg: If True, skip TKG building (use blame only)
             skip_agent: If True, skip agent search (return TKG top candidate)
+            skip_graph: If True, build the TKG but give the agent a flat
+                candidate list with no graph tools (AgenticSZZ w/o graph)
             cleanup_after: If True, clean TKG data after prediction (for evaluation)
             save_trajectory: If True, save agent trajectory to JSON file (default: True)
             trajectory_dir: Directory to save trajectories (default: results/trajectories)
@@ -230,6 +233,7 @@ class AgenticSZZ:
                     bfc,
                     skip_tkg=skip_tkg,
                     skip_agent=skip_agent,
+                    skip_graph=skip_graph,
                     cleanup_after=cleanup_after,
                     save_trajectory=save_trajectory,
                     trajectory_dir=trajectory_dir,
@@ -255,6 +259,7 @@ class AgenticSZZ:
         bfc: str,
         skip_tkg: bool = False,
         skip_agent: bool = False,
+        skip_graph: bool = False,
         cleanup_after: bool = False,
         save_trajectory: bool = True,
         trajectory_dir: str = None,
@@ -399,10 +404,34 @@ class AgenticSZZ:
 
             # Stage 3: Agent Search - pass Graphiti instance for TKG queries
             agent_start = time.time()
-            agent_result = await self.agent.search_async(
-                bfc,
-                graphiti=tkg.graphiti,  # Pass live Graphiti connection
-            )
+            if skip_graph:
+                # AgenticSZZ (w/o graph): the agent sees the same candidates it
+                # would see through list_candidates, presented as a flat list,
+                # with no graph structure and no traverse_graph tool. Isolates
+                # the graph from the candidate space, which agent_only cannot do
+                # because it also shrinks the candidate set to blame commits.
+                #
+                # Ranked by the display tiers, not tkg_result.scores: the two
+                # disagree, since bfc_ancestor outranks blame_ancestor by build
+                # score but is ranked below it for display. Using build scores
+                # would hand the agent a different top-K than `full` sees and
+                # silently reintroduce the confound.
+                tiers = {"blame": 1.0, "blame_ancestor": 0.6, "bfc_ancestor": 0.3}
+                limit = self.config.tkg.candidate_limit
+                ranked = sorted(
+                    tkg_result.candidates,
+                    key=lambda s: -tiers.get(tkg_result.types.get(s, ""), 0.1),
+                )
+                agent_result = await self.agent.search_async(
+                    bfc,
+                    candidates=ranked[:limit],
+                    graphiti=None,
+                )
+            else:
+                agent_result = await self.agent.search_async(
+                    bfc,
+                    graphiti=tkg.graphiti,  # Pass live Graphiti connection
+                )
             agent_time = (time.time() - agent_start) * 1000
 
             # Cleanup TKG data if requested (for evaluation runs)

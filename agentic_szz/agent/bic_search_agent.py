@@ -154,6 +154,28 @@ class BICPrediction:
         )
 
 
+def format_flat_candidates(repo, candidates: List[str]) -> List[str]:
+    """Render candidates as a flat numbered list for the no-graph prompt.
+
+    Used by Agent-only and by AgenticSZZ (w/o graph). Kept at module level so
+    the leakage regression tests can exercise it directly without an LLM call.
+
+    Messages are sanitized here because this path reads git directly and never
+    builds a TKG episode, so the build-time sanitization in tkg.py does not
+    apply and raw Fixes:/Reverts: trailers would otherwise reach the prompt.
+    """
+    from agentic_szz.kg.tkg import _sanitize_commit_message
+
+    lines = []
+    for i, sha in enumerate(candidates, 1):
+        try:
+            commit = repo.commit(sha)
+            lines.append(f"{i}. `{sha}` - {_sanitize_commit_message(commit.message, repo)}")
+        except Exception:
+            lines.append(f"{i}. `{sha}` - (unable to get commit info)")
+    return lines
+
+
 class BICSearchAgent:
     """
     Agent for identifying Bug-Inducing Commits using pydantic-ai with Graphiti.
@@ -195,10 +217,21 @@ class BICSearchAgent:
         return self.llm_config.model
 
     def _model_settings(self) -> dict:
-        """Return extra_body for non-thinking mode on DeepSeek models."""
+        """Return sampling settings, plus non-thinking mode on DeepSeek models.
+
+        `temperature` is sent for every provider. It was previously defined in
+        LLMConfig but never read, so all five RQ3 models ran at their server
+        default (DeepSeek documents 1.0), contradicting Section 5's claim of
+        temperature 0. It also left the controlled comparison uncontrolled,
+        since LLM4SZZ passes temperature=0.0 on every call.
+
+        Note that DeepSeek silently ignores temperature while thinking mode is
+        on, so disabling thinking is what makes the setting take effect at all.
+        """
+        settings = {"temperature": self.llm_config.temperature}
         if "deepseek" in self.llm_config.base_url.lower():
-            return {"extra_body": {"thinking": {"type": "disabled"}}}
-        return {}
+            settings["extra_body"] = {"thinking": {"type": "disabled"}}
+        return settings
 
     def _get_model(self):
         """Get configured pydantic-ai model instance.
@@ -425,19 +458,33 @@ Look for candidates that modified the SAME FUNCTIONS as the BFC. Start by callin
             from pydantic_ai.usage import UsageLimits
 
             agent = self._create_tkg_agent()
-            result = await agent.run(
+            # iter() rather than run() so usage stays readable when the run
+            # raises. Those calls were still billed: a run that trips
+            # request_limit has already made 30 requests, each resending a
+            # growing context. Recording zero for exactly the most expensive
+            # cases hid 98% of token spend in a 5-case measurement.
+            async with agent.iter(
                 prompt,
                 deps=ctx,
                 usage_limits=UsageLimits(request_limit=30),
                 model_settings=self._model_settings(),
-            )
-            prediction = result.output
-
-            # Capture agent trajectory from messages
-            trajectory = self._extract_trajectory(result.all_messages())
-
-            # Extract token usage for cost tracking (RQ3)
-            token_usage = TokenUsage.from_pydantic_ai(result.usage(), model=self.llm_config.model)
+            ) as run:
+                try:
+                    async for _ in run:
+                        pass
+                    prediction = run.result.output
+                    trajectory = self._extract_trajectory(run.result.all_messages())
+                except Exception as e:
+                    prediction = GraphitiBICPrediction(
+                        predicted_bic="",
+                        confidence=0.0,
+                        reasoning=f"Agent error: {str(e)}",
+                        alternative_candidates=[],
+                    )
+                finally:
+                    token_usage = TokenUsage.from_pydantic_ai(
+                        run.usage(), model=self.llm_config.model
+                    )
 
         except Exception as e:
             prediction = GraphitiBICPrediction(
@@ -485,15 +532,7 @@ Look for candidates that modified the SAME FUNCTIONS as the BFC. Start by callin
             bfc_files = []
 
         # Build candidate info text (consistent with TKG mode - no limits)
-        candidate_info = []
-        for i, sha in enumerate(candidates, 1):
-            try:
-                commit = self.repo.commit(sha)
-                # Use full commit message (matches TKG mode which stores full message)
-                msg = commit.message.strip()
-                candidate_info.append(f"{i}. `{sha}` - {msg}")
-            except Exception:
-                candidate_info.append(f"{i}. `{sha}` - (unable to get commit info)")
+        candidate_info = format_flat_candidates(self.repo, candidates)
 
         files_str = ", ".join(bfc_files) if bfc_files else "unknown"
         candidates_str = "\n".join(candidate_info)

@@ -10,12 +10,17 @@ This script processes the per-case JSON results from run_evaluation.py and:
 Usage:
     python evaluation/rq1_analysis.py --results-dir results/rq1
     python evaluation/rq1_analysis.py --results-dir results/rq1 --output-latex results/rq1/rq1_table.tex
+
+    # Table 2 of the paper: the mean over the three independent runs
+    python evaluation/rq1_analysis.py --runs results/rq1/running_1 \\
+        results/rq1/running_2 results/rq1/running_3
 """
 
 import argparse
 import json
 from pathlib import Path
 from dataclasses import dataclass
+from statistics import mean
 from typing import Dict, List, Optional, Tuple
 
 
@@ -196,6 +201,32 @@ def analyze_results(
                 )
     
     return all_metrics
+
+
+def average_metrics(
+    per_run: List[Dict[str, Dict[str, DatasetMetrics]]]
+) -> Dict[str, Dict[str, DatasetMetrics]]:
+    """Average the metrics of several runs, which is what the paper reports.
+
+    A config is averaged over the runs that contain it, so a run missing an
+    ablation does not drop that ablation from the table.
+    """
+    averaged = {}
+    for dataset in per_run[0]:
+        averaged[dataset] = {}
+        for config in per_run[0][dataset]:
+            runs = [r[dataset][config] for r in per_run if config in r.get(dataset, {})]
+            averaged[dataset][config] = DatasetMetrics(
+                dataset=dataset,
+                config=config,
+                total_cases=round(mean(m.total_cases for m in runs)),
+                correct=round(mean(m.correct for m in runs)),
+                total_bics=round(mean(m.total_bics for m in runs)),
+                precision=mean(m.precision for m in runs),
+                recall=mean(m.recall for m in runs),
+                f1=mean(m.f1 for m in runs),
+            )
+    return averaged
 
 
 def print_metrics_table(all_metrics: Dict[str, Dict[str, DatasetMetrics]]):
@@ -393,6 +424,13 @@ def main():
         help="Directory containing per-case JSON results"
     )
     parser.add_argument(
+        "--runs",
+        type=str,
+        nargs="+",
+        default=None,
+        help="Run directories to average over (overrides --results-dir)"
+    )
+    parser.add_argument(
         "--dataset-dir",
         type=str,
         default="dataset",
@@ -419,15 +457,24 @@ def main():
     
     args = parser.parse_args()
     
-    results_dir = Path(args.results_dir)
     dataset_dir = Path(args.dataset_dir)
-    
-    if not results_dir.exists():
-        print(f"Error: Results directory not found: {results_dir}")
-        return 1
-    
-    # Analyze results
-    all_metrics = analyze_results(results_dir, dataset_dir, args.timestamp)
+    run_dirs = [Path(d) for d in args.runs] if args.runs else [Path(args.results_dir)]
+
+    for d in run_dirs:
+        if not d.exists():
+            print(f"Error: Results directory not found: {d}")
+            return 1
+    # Averaged tables belong to the runs as a whole, not to any single run
+    results_dir = run_dirs[0].parent if args.runs else run_dirs[0]
+
+    # Analyze results, averaging over the runs when more than one is given
+    per_run = []
+    for d in run_dirs:
+        print(f"\nRun: {d}")
+        per_run.append(analyze_results(d, dataset_dir, args.timestamp))
+    all_metrics = per_run[0] if len(per_run) == 1 else average_metrics(per_run)
+    if len(per_run) > 1:
+        print(f"\nAveraged over {len(per_run)} runs")
     
     # Print table
     print_metrics_table(all_metrics)

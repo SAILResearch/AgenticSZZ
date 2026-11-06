@@ -34,29 +34,71 @@ from graphiti_core.utils.bulk_utils import add_nodes_and_edges_bulk
 from pydantic import BaseModel
 
 
-def _sanitize_commit_message(message: str) -> str:
+_SHA_RESOLVE_CACHE: Dict[Tuple[str, str], bool] = {}
+
+
+def _names_a_commit(repo: "git.Repo", token: str) -> bool:
+    """Whether a hex token resolves to a real commit in this repository.
+
+    Resolution is the only reliable test. Length is not: across 1,500 Linux
+    messages, 7-to-9-character hex tokens are real commits 5 times out of 598
+    and 13-or-more-character tokens 36 times out of 937, because kernel messages
+    carry oops dumps, register values, and addresses. A length rule would strip
+    far more legitimate context than leakage.
+
+    Memoized per repository, since a dataset shares one repo across many cases.
+    """
+    key = (repo.git_dir, token.lower())
+    cached = _SHA_RESOLVE_CACHE.get(key)
+    if cached is None:
+        try:
+            repo.commit(token)
+            cached = True
+        except Exception:
+            cached = False
+        _SHA_RESOLVE_CACHE[key] = cached
+    return cached
+
+
+def _sanitize_commit_message(message: str, repo: "git.Repo" = None) -> str:
     """
     Sanitize commit messages to prevent data leakage of BIC information.
 
     Removes:
-    1. Fixes: tags (e.g., "Fixes: 68b99e9 ("description")")
+    1. Fixes:/Reverts: trailers, with or without a parenthesised description
+       (e.g., "Fixes: 68b99e9 ("description")", "Fixes: 68b99e94b8b0")
     2. Inline commit references (e.g., "Commit 68b99e9 ("description...")")
+    3. Bare commit references in prose, when ``repo`` is supplied
+       (e.g., "the bug introduced in 0adc4921ed", "poor merge of 6488641...")
 
     Both SHA references and their quoted descriptions are removed because:
     - SHA references directly leak the BIC identity
     - Quoted descriptions are the BIC's commit message, enabling text-matching shortcuts
 
     The surrounding context explaining the bug nature is preserved.
+
+    Args:
+        message: Raw commit message.
+        repo: Repository used to resolve bare hex tokens. Without it, Pattern 4
+            is skipped and only keyword-anchored references are removed.
     """
     if not message:
         return ""
 
     sanitized = message
 
-    # Pattern 1: Remove Fixes: lines entirely
-    # Matches: Fixes: <sha> ("description") or Fixes: <sha> (description)
+    # Pattern 1: Remove Fixes:/Reverts: trailer lines entirely.
+    # Matches all of:
+    #   Fixes: <sha> ("description")   the parenthesised form
+    #   Fixes: <sha>                   bare SHA, no description
+    #   Reverts: <sha> ...             revert trailers
+    # The description is optional because the parenthesised form was previously
+    # required, so bare-SHA trailers survived sanitization. The SHA is bounded to
+    # 7 to 40 hex characters, matching Patterns 2 and 3 below, so that issue
+    # numbers such as "Fixes: 1234" are not mistaken for commit references.
     fixes_pattern = re.compile(
-        r"^\s*Fixes:\s+[a-f0-9]+\s*\(.*?\)\s*$", re.MULTILINE | re.IGNORECASE
+        r"^\s*(?:Fixes|Reverts):\s+[a-f0-9]{7,40}\b.*$",
+        re.MULTILINE | re.IGNORECASE,
     )
     sanitized = fixes_pattern.sub("", sanitized)
 
@@ -73,6 +115,28 @@ def _sanitize_commit_message(message: str) -> str:
     # Matches: [Cc]ommit <sha> followed by word boundary
     bare_commit_pattern = re.compile(r"\b[Cc]ommit\s+[a-f0-9]{7,40}\b")
     sanitized = bare_commit_pattern.sub("[referenced commit]", sanitized)
+
+    # Pattern 4: Remove bare SHA references in prose, which carry no "Fixes:"
+    # trailer and no "commit" keyword and so escape Patterns 1 to 3. Examples:
+    #   "This commit fixes a minor bug introduced in 0adc4921ed."
+    #   "fixed problems introduced with a poor merge of 648864118d17e15f..."
+    #   "85f1abe0019f ("kthread, sched/wait: Fix kthread_parkme()")"
+    # Reviewer 1 asked whether references in surrounding commits and commit
+    # titles were considered; measured, this reaches the ground-truth BIC in 34%
+    # of DS_GITHUB messages, and the agent queries the BFC node in 72% of cases.
+    # Any trailing quoted description is consumed with the SHA, since the title
+    # alone is still a text-matching shortcut.
+    if repo is not None:
+        bare_sha_pattern = re.compile(
+            r'\b([a-f0-9]{7,40})\b(\s*\(["\'].*?["\']\))?',
+            re.IGNORECASE | re.DOTALL,
+        )
+        sanitized = bare_sha_pattern.sub(
+            lambda m: "[referenced commit]"
+            if _names_a_commit(repo, m.group(1))
+            else m.group(0),
+            sanitized,
+        )
 
     # Clean up extra blank lines and whitespace
     sanitized = re.sub(r"\n{3,}", "\n\n", sanitized)
@@ -203,6 +267,19 @@ class TKGStats:
     bfc_ancestor_commits: int = 0
     build_time_ms: float = 0.0
 
+    # Scalability metrics (R1.8). Reviewer 1 asks how graph size, commit count,
+    # file count and tool-call budget affect runtime, memory and accuracy.
+    # Commit count, build time and agent time already exist; tool calls come
+    # from the stored trajectories. These four are what was missing.
+    node_count: int = 0
+    edge_count: int = 0
+    file_count: int = 0
+    # Process high-water mark, not a per-case allocation: workers are long-lived
+    # and handle cases sequentially, so this bounds memory rather than
+    # attributing it. Reported as a bound, which is what the scalability
+    # question needs.
+    peak_rss_mb: float = 0.0
+
 
 @dataclass
 class TKGResult:
@@ -211,6 +288,12 @@ class TKGResult:
     bfc: str
     candidates: List[str]  # Commit SHAs ranked by suspicion
     scores: Dict[str, float]  # SHA -> suspicion score
+    # SHA -> "blame" | "blame_ancestor" | "bfc_ancestor". Needed by the
+    # full_no_graph ablation, which must select the same candidates the agent
+    # sees via list_candidates. That ordering uses a three-tier type score,
+    # not these depth-based scores, and the two disagree: bfc_ancestor
+    # outranks blame_ancestor here but is ranked below it for display.
+    types: Dict[str, str] = field(default_factory=dict)
     stats: TKGStats = field(default_factory=TKGStats)
 
 
@@ -469,6 +552,7 @@ class SuspiciousCommitTKG:
 
         stats = TKGStats()
         candidates = {}  # sha -> score
+        candidate_types = {}  # sha -> "blame" | "blame_ancestor" | "bfc_ancestor"
         episode_chain = []  # Track temporal order for previous_episode_uuids
 
         # Get BFC info
@@ -511,6 +595,7 @@ class SuspiciousCommitTKG:
                     blame_uuids[sha] = blame_uuid
                     episode_chain.append(blame_uuid)
                     candidates[sha] = 1.0  # Highest base score
+                    candidate_types[sha] = "blame"
                     stats.blame_commits += 1
             except Exception:
                 continue
@@ -546,6 +631,7 @@ class SuspiciousCommitTKG:
                                 prev_uuid = ancestor_uuid  # Chain ancestors together
                             # Score decreases with depth
                             candidates[ancestor_sha] = 0.8 / (1 + depth * 0.1)
+                            candidate_types[ancestor_sha] = "blame_ancestor"
                             stats.blame_ancestor_commits += 1
                         except Exception:
                             continue
@@ -582,6 +668,7 @@ class SuspiciousCommitTKG:
                                 prev_uuid = ancestor_uuid  # Chain together
                             # Score by depth from BFC
                             candidates[ancestor_sha] = 0.9 / (1 + depth * 0.1)
+                            candidate_types[ancestor_sha] = "bfc_ancestor"
                             stats.bfc_ancestor_commits += 1
                         except Exception:
                             continue
@@ -593,10 +680,40 @@ class SuspiciousCommitTKG:
         # Add temporal edges between episodes (Neo4j direct)
         await self._add_temporal_edges(bfc)
 
+        # Scalability metrics (R1.8), measured after the graph is complete.
+        stats.file_count = len(bfc_files) if bfc_files else 0
+        try:
+            import resource
+
+            stats.peak_rss_mb = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss / 1024
+        except Exception:
+            pass
+        try:
+            records, _, _ = await self.graphiti.driver.execute_query(
+                """
+                MATCH (n {group_id: $gid})
+                OPTIONAL MATCH (n)-[r]->(m {group_id: $gid})
+                RETURN count(DISTINCT n) AS nodes, count(r) AS edges
+                """,
+                gid=bfc,
+            )
+            if records:
+                stats.node_count = records[0]["nodes"]
+                stats.edge_count = records[0]["edges"]
+        except Exception:
+            # Counting is diagnostic only; never fail a build over it.
+            pass
+
         # Sort candidates by score
         sorted_candidates = sorted(candidates.keys(), key=lambda x: candidates[x], reverse=True)
 
-        return TKGResult(bfc=bfc, candidates=sorted_candidates, scores=candidates, stats=stats)
+        return TKGResult(
+            bfc=bfc,
+            candidates=sorted_candidates,
+            scores=candidates,
+            types=candidate_types,
+            stats=stats,
+        )
 
     async def search_bic(self, bfc: str) -> Tuple[str, float, str]:
         """
@@ -866,7 +983,7 @@ class SuspiciousCommitTKG:
 
         # Create structured episode content
         # Sanitize message to remove Fixes: tags that leak ground truth BIC info
-        sanitized_msg = _sanitize_commit_message(commit.message)
+        sanitized_msg = _sanitize_commit_message(commit.message, self.repo)
 
         # Include line count for blame commits (helps agent rank multiple blame candidates)
         line_count_str = f"\nBlame lines: {line_count}" if line_count else ""
@@ -923,12 +1040,16 @@ class SuspiciousCommitTKG:
         # Extract and store diff content (on-demand storage for causal analysis)
         try:
             # Use git show to get the diff text
+            # --format=: Suppress the commit header. Without it, git prepends the
+            #   author, date, and full raw commit message, so Fixes: tags naming
+            #   the ground-truth BIC land in diff_content and are returned verbatim
+            #   by read_node_content, bypassing _sanitize_commit_message entirely.
             # -U1: Minimal context
             # --: Delimiter for files
             files_args = (
                 relevant_files if relevant_files and relevant_files[0] != "(file history)" else []
             )
-            diff_cmd = ["-U1", sha, "--"] + files_args
+            diff_cmd = ["--format=", "-U1", sha, "--"] + files_args
 
             # Use decode explicit with ignore/replace to handle binary/weird chars
             # git.show returns string by default in GitPython, but we can access raw stats or bytes

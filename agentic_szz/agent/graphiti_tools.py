@@ -32,12 +32,24 @@ from graphiti_core import Graphiti
 # =============================================================================
 
 
+# Maximum read_node_content calls per case. See read_node_content for the
+# measurement behind the value.
+MAX_DIFF_READS = 5
+
+
 @dataclass
 class GraphitiContext:
     """Dependencies passed to agent tools via pydantic-ai's dependency injection."""
 
     graphiti: Graphiti
     bfc: str  # BFC SHA, used as group_id for filtering
+    # Diff reads issued so far in this case. Section 5 states a limit of 3 but
+    # nothing enforced it, which Reviewer 2 flagged (R2.10). Unenforced, the
+    # agent can re-read the same diff repeatedly: one measured case issued 32
+    # read_node_content calls, 15 of them re-reads of just two SHAs, growing
+    # the prompt from 1.8K to 58K tokens until request_limit was exhausted and
+    # the case returned nothing.
+    diff_reads: int = 0
 
 
 class CommitInfo(BaseModel):
@@ -411,6 +423,20 @@ async def read_node_content(ctx: RunContext[GraphitiContext], sha: str) -> str:
     Returns:
         The unified diff content stored in the node (truncated if large).
     """
+    # Enforce the diff-read budget. 5 rather than the 3 stated in Section 5:
+    # measured over 2,018 stored trajectories, healthy cases issue at most 5
+    # diff reads (median 3, p99 4), so 5 leaves normal behaviour untouched and
+    # acts only as a loop breaker. A cap of 3 would clip 6.8% of healthy cases.
+    # Degrades gracefully rather than raising, so the case still yields an answer.
+    if ctx.deps.diff_reads >= MAX_DIFF_READS:
+        return (
+            f"Diff read limit reached ({MAX_DIFF_READS}). You have already read "
+            f"{ctx.deps.diff_reads} diffs, which is enough to decide. Do not request "
+            f"more diffs; choose the most likely bug-inducing commit from what you "
+            f"have already seen and return your final answer now."
+        )
+    ctx.deps.diff_reads += 1
+
     # First find the UUID for this SHA
     episodes = await ctx.deps.graphiti.retrieve_episodes(
         reference_time=datetime.now(timezone.utc),

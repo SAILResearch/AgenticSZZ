@@ -140,7 +140,7 @@ For the provided statistical analysis, place the three runs' per-case logs under
 
 ### TC-SZZ and Statistical Tests
 
-Download the [TC-SZZ replication package](https://figshare.com/articles/journal_contribution/SZZ-TSE23/23889792/2?file=46500478) and extract it to `vendor/tc-szz/`, containing `tse_new/rq12/json-output-raw/rq1/bic_tc_bugfix_commits_all.json`.
+Download the [TC-SZZ replication package](https://figshare.com/articles/journal_contribution/SZZ-TSE23/23889792?file=46500478) and extract it to `vendor/tc-szz/`, containing `tse_new/rq12/json-output-raw/rq1/bic_tc_bugfix_commits_all.json`.
 
 ```bash
 python evaluation/tc_szz_baseline.py
